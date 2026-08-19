@@ -1,0 +1,33 @@
+# Runtime / secrets — never commit
+whisper-venv/
+downloads/
+.DS_Store
+
+# Machine-only notes and path overrides
+AGENTS.local.md
+BACKLOG.local.md
+local.env
+wanted-collections.txt
+notion.env
+.env
+*.m4a
+*.mp4
+*.webm
+*.wav
+*.jpg
+*.webp
+*.png
+*.txt
+!lib/whisper-hotwords.txt
+!wanted-collections.example.txt
+*.log
+*.srt
+*.vtt
+*.whisper.log
+
+# Cookies live outside repo: ~/.config/ig-cookies.txt
+# Saved inventories, ZIPs, bookmark dumps, extract jsonl — local only
+exports/
+*.zip
+__pycache__/
+*.pyc

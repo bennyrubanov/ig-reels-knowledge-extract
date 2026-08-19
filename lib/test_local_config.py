@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+"""local_config loads gitignored overrides without baking them into git."""
+from __future__ import annotations
+
+import unittest
+from pathlib import Path
+
+from local_config import default_vault, parse_env_file, wanted_collections
+
+
+class LocalConfigTests(unittest.TestCase):
+    def test_parse_env_file(self) -> None:
+        parsed = parse_env_file("# hi\nOBSIDIAN_VAULT=/tmp/vault\n")
+        self.assertEqual(parsed["OBSIDIAN_VAULT"], "/tmp/vault")
+
+    def test_default_vault_uses_local_env(self) -> None:
+        vault = default_vault()
+        self.assertTrue(str(vault))
+        self.assertIsInstance(vault, Path)
+
+    def test_wanted_collections_are_strings_when_present(self) -> None:
+        names = wanted_collections()
+        if names is not None:
+            self.assertTrue(all(isinstance(n, str) and n for n in names))
+
+
+if __name__ == "__main__":
+    unittest.main()

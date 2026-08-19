@@ -1,0 +1,145 @@
+# One term or short phrase per line. Comments start with #.
+# Loaded on every Whisper invoke — edit this file mid-batch to affect later jobs.
+gamma
+GEX
+EMA
+Supabase
+Vercel
+Neon
+Cloudflare
+R2
+Radarr
+Sonarr
+NZBGet
+Jellyfin
+Prowlarr
+box spread
+SPX
+Pi-hole
+MVT
+Pegasus
+shadcn
+Radix
+SimpleLogin
+Addy.io
+NFC
+NTAG
+Shortcuts
+Helion
+Novanta
+Timken
+Moog
+USAR
+OSINT
+Arctic Shift
+PullPush
+Insecam
+MarineTraffic
+AIMAP
+Netryx-Astra-V2
+voidaccess
+Points Path
+Legrooms+
+seats.aero
+SeatMaps
+Assistive Access
+satisficer
+Herbert Simon
+REIT
+HELOC
+cap rate
+NOI
+USA Rare Earth
+Acanthamoeba
+NeMo Guardrails
+DSCR
+HUD USER
+BiggerPockets
+SpotCrime
+Finnhub
+Hugging Face
+OHLCV
+Parquet
+VWAP
+Erenz
+Richivox
+Golden Visa
+BRRRR
+Never Split the Difference
+Hadrian
+Factory 4
+JetZero
+TradingView
+K2 Trading
+Sadot
+SDOT
+VPG
+Agility Robotics
+Leaderdrive
+Serve Robotics
+SERV
+Lightwave Logic
+LWLG
+NANO Nuclear
+NNE
+Amprius
+AMPX
+Redwire
+RDW
+KRONOS
+petrodollar
+SWIFT
+Miami-Dade
+zoning
+GIS
+wholesaling
+Kruse Elite
+radial nerve
+CBP
+Isle of Man
+REalloys
+ALOY
+Aduro
+ADUR
+GT Biopharma
+GTBP
+Rocket Lab
+RKLB
+AST SpaceMobile
+ASTS
+Planet Labs
+Satellogic
+SATL
+Spire
+SIDU
+Caterpillar
+Cummins
+GE Vernova
+Vertiv
+Tanbreez
+Critical Metals
+CRML
+urolithin
+spermidine
+NMN
+sulforaphane
+fisetin
+Aschenbrenner
+Nebius
+CoreWeave
+MP Materials
+Ivanhoe
+Perpetua
+Hormuz
+CLZ26
+Wallet Ninja
+Jane Street
+row-level security
+Asymmetrical Bets
+Theta
+Vega
+Rigetti
+QTUM
+Ficohsa
+Lacthosa
+cash-out refinance

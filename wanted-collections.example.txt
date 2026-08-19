@@ -1,0 +1,4 @@
+# Copy to wanted-collections.txt (gitignored).
+# One Instagram Saved collection name per line, exactly as in the export.
+# Building an app
+# Marketing an app
