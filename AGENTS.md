@@ -1,6 +1,6 @@
 # Agent instructions — ig-yt-x-knowledge-extract
 
-Read this file first. Auth (no Instagram OAuth): [docs/auth.md](docs/auth.md). Extraction: [docs/agent-workflow.md](docs/agent-workflow.md). Filing: [docs/obsidian-filing.md](docs/obsidian-filing.md). After a large queue: [docs/batch-briefing.md](docs/batch-briefing.md).
+Read this file first. Auth (no Instagram OAuth): [docs/auth.md](docs/auth.md). Extraction: [docs/agent-workflow.md](docs/agent-workflow.md). Filing: [docs/obsidian-filing.md](docs/obsidian-filing.md). Optional URL queue: [docs/paste-inbox.md](docs/paste-inbox.md). After a large queue: [docs/batch-briefing.md](docs/batch-briefing.md).
 
 **If `AGENTS.local.md` exists, read it next.** That file is gitignored machine notes (inbox IDs, parked work, collection order). Cloud clones will not have it.
 
@@ -54,14 +54,14 @@ Unix wrappers (`transcribe-reel.sh`, …) call the same Python. Config symlink `
 
 Scoreboard is disk + vault. Do not count jsonl `fail` rows.
 
-Optional Notion paste-inbox (IDs in `local.env`):
+Optional paste-inbox (IDs in `local.env`). Public = extractor; the ping is a separate habit: [docs/paste-inbox.md](docs/paste-inbox.md).
 
 ```bash
 python3 scripts/notion-extract-inbox.py list
 python3 scripts/notion-extract-inbox.py urls
 ```
 
-Then `transcribe-batch` those URLs and `mark --status noted` (or `skip` / `fail`). Skip comment-keyword CTAs (Comment “Sued”, KITCHEN, …) — mark `skip`, do not extract.
+Then `igx batch` those URLs and `mark --status noted` (or `skip` / `fail`). Skip comment-keyword CTAs (Comment “Sued”, KITCHEN, …) — mark `skip`, do not extract. The analysis prompt is usually the **Name** text before `on Instagram:`, not a Question column.
 
 ## Paths
 
@@ -90,16 +90,7 @@ Document as you go. A learning that is only in chat is not captured. Pipeline le
 
 Videos **>120s** skip frames by default; `python scripts/igx.py reextract {id}` (or `reextract-frames.sh`) if needed.
 
-## Instagram comments (fact-check)
-
-When asked for a comment to post on a reel:
-
-- Use the **reel’s words**. Do not upgrade into lab voice.
-- Deliver as **plain numbered text**. Instagram strips markdown lists.
-- **No hyphens** except one they put in the opener. No em dashes.
-- Each item is **what is true + what to do**.
-- Do **not** comment the CTA keyword.
-- First person, short sentences.
+This pipeline does **not** fetch Instagram comment threads (caption, frames, and transcript only). If a source is in comments, paste the text or a screenshot.
 
 ## Missed frames?
 

@@ -93,7 +93,7 @@ capture_context: Inbox                             # Todoist / Notion / chat
 ---
 ```
 
-**Inbox pastes:** the operator often copies the **link plus the question they wrote when they saved it**. That comment is the analysis prompt — put it in `user_question` and **answer it in the first TL;DR bullet**. YAML alone is not enough. A Notion **Question** column is the same field (`capture_context: Notion`).
+**Inbox pastes:** the operator often copies the **link plus the question they wrote when they saved it**. That comment is the analysis prompt — put it in `user_question` and **answer it in the first TL;DR bullet**. YAML alone is not enough. In the Notion inbox the prompt usually sits in **Name** immediately before `{creator} on Instagram: "…"`. A **Question** column is an optional override (`capture_context: Notion`). See [paste-inbox.md](paste-inbox.md).
 
 If `user_question` is set, the **first** TL;DR bullet is:
 

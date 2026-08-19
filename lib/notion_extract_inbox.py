@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Notion Instagram Extractions inbox — poll and mark, never extract.
 
-Railway emails once when queued first hits 100. This module only talks to Notion. Download,
-Whisper and vault writes stay on the machine that runs transcribe-batch.
+A hosted poller may email when queued first hits a threshold. This module only
+talks to Notion. Download, Whisper, and vault writes stay on the cookie machine.
+See docs/paste-inbox.md.
 """
 from __future__ import annotations
 
@@ -26,6 +27,37 @@ TOKEN_PATHS = (
     Path(__file__).resolve().parents[1] / "notion.env",
 )
 
+# Instagram share titles look like `{creator} on Instagram: "{caption}"`.
+# The operator types the analysis prompt immediately before that.
+_ON_INSTAGRAM = re.compile(
+    r"^(?P<prefix>.*?)\s+on Instagram:\s*",
+    re.IGNORECASE | re.DOTALL,
+)
+_PROMPT_START = re.compile(
+    r"^(true|valid|necessary|should|why|how|what|is\b|any|anything|copy|"
+    r"implement|new|worth|check|thoughts|legit|does|can|would|could|"
+    r"please|look|review)\b",
+    re.IGNORECASE,
+)
+_TRAILING_HANDLE = re.compile(r"\s+@[\w.]+$")
+# `{Brand | subtitle}` at the end — not everything before the first `|`.
+_TRAILING_PIPE_BRAND = re.compile(
+    r"\s+[A-Z][^\s|]*(?:\s+[A-Z][^\s|]*){0,3}(?:\s*\|\s*[^|]+)+$"
+)
+_TRAILING_CREATOR_NAME = re.compile(
+    r"""
+    (?:
+        \s+[A-Z][^\s|]*(?:\s+[A-Z][^\s|]*){0,2}
+        |
+        \s+[A-Z][a-zA-Z]*[A-Z][a-zA-Z]+
+        |
+        (?<=\?)\s+[a-z][\w.]{2,}(?:\s+[a-z][\w.]{2,})?
+    )
+    $
+    """,
+    re.VERBOSE,
+)
+
 # Comment “Sued” / Comment KITCHEN — a cron would finish these; a batch skips.
 _COMMENT_KEYWORD = re.compile(
     r"""
@@ -40,6 +72,51 @@ _COMMENT_KEYWORD = re.compile(
 
 def looks_like_comment_keyword_cta(text: str) -> bool:
     return bool(text and _COMMENT_KEYWORD.search(text))
+
+
+def looks_like_creator_only(prefix: str) -> bool:
+    """True when the Name prefix is only the Instagram creator, not a prompt."""
+    s = (prefix or "").strip()
+    if not s:
+        return True
+    if "?" in s:
+        return False
+    if _PROMPT_START.match(s):
+        return False
+    if s.startswith("@") and len(s.split()) <= 2:
+        return True
+    if "|" in s:
+        return True
+    return len(s.split()) <= 4
+
+
+def strip_trailing_creator(prefix: str) -> str:
+    """Drop `{creator}` from `{prompt} {creator}` so the prompt remains."""
+    s = (prefix or "").strip()
+    s = _TRAILING_HANDLE.sub("", s).strip()
+    s = _TRAILING_PIPE_BRAND.sub("", s).strip()
+    s = _TRAILING_CREATOR_NAME.sub("", s).strip()
+    return s
+
+
+def user_question_from_name(title: str, question_prop: str = "") -> str:
+    """Question column wins; otherwise the text typed before the IG share title."""
+    q = (question_prop or "").strip()
+    if q:
+        return q
+    text = (title or "").strip()
+    if not text:
+        return ""
+    match = _ON_INSTAGRAM.match(text)
+    if match:
+        prefix = (match.group("prefix") or "").strip()
+    else:
+        prefix = re.sub(r"\s+Instagram\s*$", "", text, flags=re.I).strip()
+        if prefix.lower() in {"", "instagram"}:
+            return ""
+    if looks_like_creator_only(prefix):
+        return ""
+    return strip_trailing_creator(prefix)
 
 
 def is_actionable_queued(status: str, url: str) -> bool:
@@ -134,7 +211,8 @@ def row_from_page(page: dict[str, Any], url_prop: str = "URL") -> dict[str, Any]
             title = prop_plain(prop)
             break
     status = prop_plain(props.get("Status"))
-    question = prop_plain(props.get("Question"))
+    question_prop = prop_plain(props.get("Question"))
+    question = user_question_from_name(title, question_prop)
     media_id = prop_plain(props.get("Media ID")) or media_id_from_url(url)
     vault_path = prop_plain(props.get("Vault path"))
     topics_prop = props.get("Topics") or {}

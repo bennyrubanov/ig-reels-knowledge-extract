@@ -4,10 +4,13 @@
 Does not download, Whisper, or write the vault. After you have a pile:
 
   python3 scripts/notion-extract-inbox.py urls
-  transcribe-batch.sh $(python3 scripts/notion-extract-inbox.py urls)
+  python scripts/igx.py batch $(python3 scripts/notion-extract-inbox.py urls)
   # file notes, then:
   python3 scripts/notion-extract-inbox.py mark --media-id SHORTCODE --status noted \\
       --vault-path instagram/extractions/SHORTCODE-slug.md
+
+The analysis prompt is usually the Name text before `on Instagram:`, not the
+Question column. See docs/paste-inbox.md.
 
 Comment-keyword CTAs (Comment “Sued”) are listed as skip-cta and omitted from
 `urls` unless you pass --include-skip-cta. Mark those skip — do not extract.

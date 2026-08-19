@@ -14,6 +14,7 @@ from notion_extract_inbox import (
     queued_query_filter,
     row_from_page,
     url_property_name,
+    user_question_from_name,
 )
 
 
@@ -55,6 +56,55 @@ class QueuedTests(unittest.TestCase):
         self.assertEqual(filt["or"][0]["property"], "Status")
 
 
+class NameQuestionTests(unittest.TestCase):
+    def test_question_column_wins(self) -> None:
+        title = 'Valid?? Rasha Elfeky on Instagram: "caption"'
+        self.assertEqual(user_question_from_name(title, "use this"), "use this")
+
+    def test_creator_only_is_not_a_question(self) -> None:
+        self.assertEqual(
+            user_question_from_name('@murphmaxxing on Instagram: "Comment “Sued”"'),
+            "",
+        )
+        self.assertEqual(
+            user_question_from_name('Bryan Johnson on Instagram: "sauna"'),
+            "",
+        )
+        self.assertEqual(
+            user_question_from_name(
+                'Cashtag | Investing Only on Instagram: "ETFs"'
+            ),
+            "",
+        )
+
+    def test_prompt_before_instagram_title(self) -> None:
+        cases = [
+            ('Valid?? Rasha Elfeky on Instagram: "x"', "Valid??"),
+            (
+                'Nextedge.bet? Worth it? Sam Tremelling on Instagram: "x"',
+                "Nextedge.bet? Worth it?",
+            ),
+            ('Should I buy? TrendSpider on Instagram: "x"', "Should I buy?"),
+            (
+                "True? How to eat more fiber Tony on Instagram: \"x\"",
+                "True? How to eat more fiber",
+            ),
+            (
+                "Copy this table’s contents Cashtag | Investing Only on Instagram: \"x\"",
+                "Copy this table’s contents",
+            ),
+            (
+                "New AI trader/Benya models? Smart Money | Business & Wealth on Instagram: \"x\"",
+                "New AI trader/Benya models?",
+            ),
+            ('Any reason to do this? aryan patel on Instagram: "x"', "Any reason to do this?"),
+            ("True? Instagram", "True?"),
+        ]
+        for title, want in cases:
+            with self.subTest(title=title):
+                self.assertEqual(user_question_from_name(title), want)
+
+
 class RowTests(unittest.TestCase):
     def test_row_from_page(self) -> None:
         page = {
@@ -62,7 +112,14 @@ class RowTests(unittest.TestCase):
             "properties": {
                 "Name": {
                     "type": "title",
-                    "title": [{"plain_text": 'Comment “Sued” to get the guide'}],
+                    "title": [
+                        {
+                            "plain_text": (
+                                '@murphmaxxing on Instagram: "Comment “Sued” '
+                                "to get the guide\""
+                            )
+                        }
+                    ],
                 },
                 "URL": {
                     "type": "url",
@@ -82,6 +139,31 @@ class RowTests(unittest.TestCase):
         self.assertEqual(row["page_id"], "3c03c77f-93de-81c0-bc1f-c127906616ee")
         self.assertTrue(row["skip_cta"])
         self.assertFalse(row["actionable"])
+        self.assertEqual(row["question"], "")
+
+    def test_row_derives_question_from_name(self) -> None:
+        page = {
+            "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            "properties": {
+                "Name": {
+                    "type": "title",
+                    "title": [
+                        {
+                            "plain_text": 'Should I buy? TrendSpider on Instagram: "CEO buy"',
+                        }
+                    ],
+                },
+                "URL": {
+                    "type": "url",
+                    "url": "https://www.instagram.com/reel/KeepMe/",
+                },
+                "Status": {"type": "select", "select": {"name": "queued"}},
+                "Question": {"type": "rich_text", "rich_text": []},
+            },
+        }
+        row = row_from_page(page)
+        self.assertEqual(row["question"], "Should I buy?")
+        self.assertTrue(row["actionable"])
 
     def test_urls_omit_cta_by_default(self) -> None:
         rows = [

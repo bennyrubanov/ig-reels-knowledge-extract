@@ -2,7 +2,7 @@
 
 Canonical instructions for agents. **Not in Obsidian** — this repo only.
 
-Cross-ref: [AGENTS.md](../AGENTS.md) (entry point), [README.md](../README.md) (setup & CLI), [obsidian-filing.md](obsidian-filing.md) (where notes go), [batch-briefing.md](batch-briefing.md) (after a large queue). Machine notes: `AGENTS.local.md` if present.
+Cross-ref: [AGENTS.md](../AGENTS.md) (entry point), [README.md](../README.md) (setup & CLI), [obsidian-filing.md](obsidian-filing.md) (where notes go), [paste-inbox.md](paste-inbox.md) (optional URL queue), [batch-briefing.md](batch-briefing.md) (after a large queue). Machine notes: `AGENTS.local.md` if present.
 
 ---
 
@@ -14,7 +14,7 @@ Cross-ref: [AGENTS.md](../AGENTS.md) (entry point), [README.md](../README.md) (s
 | **Config symlink** | `~/.config/ig-yt-x-knowledge-extract` | Optional. Windows uses the clone. Legacy names still resolve. |
 | **Instagram auth** | `~/.config/ig-cookies.txt` | Netscape jar. **No OAuth.** Recipe: [auth.md](auth.md) |
 | **Obsidian vault** | `OBSIDIAN_VAULT` or `local.env` | **Knowledge only** — no agent/tooling docs |
-| **Notion inbox** | optional; IDs in `local.env` | Paste-URL queue. Poll with `scripts/notion-extract-inbox.py`. |
+| **Paste inbox** | optional; IDs in `local.env` | URL queue. Poll with `scripts/notion-extract-inbox.py`. Habit: [paste-inbox.md](paste-inbox.md). |
 
 ---
 
@@ -294,7 +294,7 @@ Whisper: `{id}.whisper.log` + live segment progress on stderr.
 
 Parallel batch: `transcribe-batch.sh URL…` (routes `/reel/` `/p/` YouTube X) or `extract-queue.py --queue queue.json`. Writes `--jsonl` (default `/tmp/extract.jsonl`). **Scoreboard:** `extract-status.sh --jsonl FILE` — disk + vault, not raw `fail` counts. A job that exits 234 (mjpeg) or 1 (old image-only carousel) but left slides/frames is `ok_partial` / `recovered`, not a missing note.
 
-**Notion inbox (optional, not the Saved ZIP):** paste URLs into a Notion database. Nothing downloads until the operator says to run the queue on a machine with cookies. Then:
+**Paste inbox (optional, not the Saved ZIP):** public repo = extractor; the ping is a separate habit — [paste-inbox.md](paste-inbox.md). Nothing downloads until the operator says to run the queue on a machine with cookies. Then:
 
 ```bash
 python3 scripts/notion-extract-inbox.py list
@@ -303,7 +303,7 @@ python3 scripts/notion-extract-inbox.py urls   # omits comment-keyword CTAs
 #     python3 extract-queue.py --queue /tmp/notion-queue.json
 ```
 
-File per [obsidian-filing.md](obsidian-filing.md). Mark the row (`noted` / `skip` / `fail`) and set `Vault path`. Question column is `user_question`. If Question is empty, the **Name** prefix before `on Instagram:` is still the saved comment. Empty **Status** is queued — do not only SQL `Status = queued`. Look up `page_id` by URL if `update_page` 404s (IDs in a dump can swap `3c03`/`3c13`). Comment-keyword CTAs (Comment “Sued”) — mark `skip`, do not extract. yt-dlp often returns **one slide** for a carousel; file that slide and say so.
+File per [obsidian-filing.md](obsidian-filing.md). Mark the row (`noted` / `skip` / `fail`) and set `Vault path`. `user_question` is the **Name** prefix before `on Instagram:` (minus the creator). A Notion **Question** column is an optional override — usually empty. Empty **Status** is queued — do not only SQL `Status = queued`. Look up `page_id` by URL if `update_page` 404s (IDs in a dump can swap `3c03`/`3c13`). Comment-keyword CTAs (Comment “Sued”) — mark `skip`, do not extract. yt-dlp often returns **one slide** for a carousel; file that slide and say so.
 
 More URLs: paste in chat, or a bookmark-HTML export of *chosen folders* into `exports/` (gitignored). Agents should not log into Google. Live handoffs: `BACKLOG.local.md` if present.
 
@@ -334,6 +334,7 @@ More URLs: paste in chat, or a bookmark-HTML export of *chosen folders* into `ex
 
 ## Changelog
 
+- **2026-08-19** — Paste inbox is documented as optional and out of this repo: [paste-inbox.md](paste-inbox.md). `user_question` is parsed from the Name prefix before `on Instagram:`. Notion **Question** / **Topics** stay in the schema as unused overlays; do not fill them on paste. Public docs do not include one-off “draft a comment to post” voice. Instagram comment threads are not fetched.
 - **2026-08-19** — Extract CLI is Python (`python scripts/igx.py …`) so Windows and Mac share one implementation. `.sh` files are thin Unix wrappers. No WSL required. Cookie path is still `~/.config/ig-cookies.txt`.
 - **2026-08-19** — Auth is documented for clones: [auth.md](auth.md). No Instagram OAuth. `scripts/check-setup.py` verifies the jar without printing values. `CLAUDE.md` / `GEMINI.md` / `.cursor/rules` point at `AGENTS.md`.
 - **2026-08-19** — Renamed public GitHub repo to `ig-yt-x-knowledge-extract`. Config symlink is `~/.config/ig-yt-x-knowledge-extract`; `ig-reels-knowledge-extract` and `ig-reel` still resolve. Local clone folder can match that name; scripts use the symlink, not the directory name.

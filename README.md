@@ -79,7 +79,7 @@ python3 scripts/ig-saved-inventory.py \
 
 `exports/` is gitignored. Optional `wanted-collections.txt` limits which folders get queue files.
 
-Optional Notion paste-inbox: set `NOTION_DATABASE_ID` / `NOTION_DATA_SOURCE_ID` in `local.env` and `NOTION_TOKEN` (or `notion.env`). `scripts/notion-extract-inbox.py` lists and marks rows. It does not download or transcribe.
+Optional paste-inbox (Notion or any URL list): this repo does not include a hosted poller. Habit + schema + ping rules: [docs/paste-inbox.md](docs/paste-inbox.md). `scripts/notion-extract-inbox.py` lists and marks rows. It does not download or transcribe.
 
 ## Docs
 
@@ -87,6 +87,7 @@ Optional Notion paste-inbox: set `NOTION_DATABASE_ID` / `NOTION_DATA_SOURCE_ID` 
 |------|-----|
 | [AGENTS.md](AGENTS.md) | Agent entry point (Claude / Cursor / Codex / Gemini) |
 | [docs/auth.md](docs/auth.md) | Cookie jar — no OAuth |
+| [docs/paste-inbox.md](docs/paste-inbox.md) | Optional URL queue + ping (not this repo) |
 | [docs/agent-workflow.md](docs/agent-workflow.md) | Extraction steps, failures |
 | [docs/obsidian-filing.md](docs/obsidian-filing.md) | Where notes go |
 | [docs/batch-briefing.md](docs/batch-briefing.md) | After a large queue |
