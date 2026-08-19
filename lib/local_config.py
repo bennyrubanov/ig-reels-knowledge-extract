@@ -6,6 +6,7 @@ Used for vault path and optional Notion inbox IDs — never cookies or tokens.
 from __future__ import annotations
 
 import os
+import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -18,15 +19,69 @@ _CONFIG_CANDIDATES = (
 )
 
 
+def user_config_dir() -> Path:
+    """~/.config on Mac/Linux and %USERPROFILE%\\.config on Windows."""
+    return Path.home() / ".config"
+
+
+def ig_cookies_path() -> Path:
+    return user_config_dir() / "ig-cookies.txt"
+
+
+def x_cookies_path() -> Path:
+    return user_config_dir() / "x-cookies.txt"
+
+
 def config_root() -> Path:
-    """Install symlink. IG_REELS_ROOT wins, then the current name, then legacy names."""
+    """Install symlink, else the clone. IG_REELS_ROOT wins."""
     raw = os.environ.get("IG_REELS_ROOT", "").strip()
     if raw:
         return Path(raw)
     for path in _CONFIG_CANDIDATES:
         if path.exists():
             return path
-    return _CONFIG_CANDIDATES[0]
+    return REPO_ROOT
+
+
+def venv_dir(root: Path | None = None) -> Path:
+    return (root or config_root()) / "whisper-venv"
+
+
+def venv_bin_dir(root: Path | None = None) -> Path:
+    venv = venv_dir(root)
+    scripts = venv / "Scripts"
+    posix = venv / "bin"
+    if scripts.is_dir():
+        return scripts
+    if posix.is_dir():
+        return posix
+    return scripts if os.name == "nt" else posix
+
+
+def venv_python(root: Path | None = None) -> Path:
+    bindir = venv_bin_dir(root)
+    for name in ("python.exe", "python3.exe", "python3", "python"):
+        cand = bindir / name
+        if cand.is_file():
+            return cand
+    return bindir / ("python.exe" if os.name == "nt" else "python3")
+
+
+def venv_whisper(root: Path | None = None) -> Path:
+    bindir = venv_bin_dir(root)
+    for name in ("whisper.exe", "whisper"):
+        cand = bindir / name
+        if cand.is_file():
+            return cand
+    return bindir / ("whisper.exe" if os.name == "nt" else "whisper")
+
+
+def downloads_dir(root: Path | None = None) -> Path:
+    return (root or config_root()) / "downloads"
+
+
+def default_jsonl_path() -> Path:
+    return Path(tempfile.gettempdir()) / "extract.jsonl"
 
 
 def parse_env_file(text: str) -> dict[str, str]:

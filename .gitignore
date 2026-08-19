@@ -25,7 +25,7 @@ notion.env
 *.vtt
 *.whisper.log
 
-# Cookies live outside repo: ~/.config/ig-cookies.txt
+# Cookies live outside the repo: ~/.config/ig-cookies.txt (see docs/auth.md)
 # Saved inventories, ZIPs, bookmark dumps, extract jsonl — local only
 exports/
 *.zip

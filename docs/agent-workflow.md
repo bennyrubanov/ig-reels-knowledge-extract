@@ -11,8 +11,8 @@ Cross-ref: [AGENTS.md](../AGENTS.md) (entry point), [README.md](../README.md) (s
 | Layer | Location | Role |
 |-------|----------|------|
 | **This repo** | clone / config symlink | Scripts, agent docs, venv, downloads |
-| **Config symlink** | `~/.config/ig-yt-x-knowledge-extract` | Same as repo (legacy `ig-reels-knowledge-extract` and `ig-reel` still resolve) |
-| **Instagram auth** | `~/.config/ig-cookies.txt` | Netscape cookies, chmod 600 |
+| **Config symlink** | `~/.config/ig-yt-x-knowledge-extract` | Optional. Windows uses the clone. Legacy names still resolve. |
+| **Instagram auth** | `~/.config/ig-cookies.txt` | Netscape jar. **No OAuth.** Recipe: [auth.md](auth.md) |
 | **Obsidian vault** | `OBSIDIAN_VAULT` or `local.env` | **Knowledge only** — no agent/tooling docs |
 | **Notion inbox** | optional; IDs in `local.env` | Paste-URL queue. Poll with `scripts/notion-extract-inbox.py`. |
 
@@ -30,6 +30,10 @@ Cross-ref: [AGENTS.md](../AGENTS.md) (entry point), [README.md](../README.md) (s
 | **Cursor Read** | Vision on frame JPGs |
 
 No paid APIs. Scripts already warn if `ollama ps` shows a loaded model.
+
+## Auth (read this before downloading Instagram)
+
+There is no Instagram Connect / Graph API. If `~/.config/ig-cookies.txt` is missing, stop and follow [auth.md](auth.md). Cloud agents cannot complete that step. Never echo the jar.
 
 ---
 
@@ -299,7 +303,7 @@ python3 scripts/notion-extract-inbox.py urls   # omits comment-keyword CTAs
 #     python3 extract-queue.py --queue /tmp/notion-queue.json
 ```
 
-File per [obsidian-filing.md](obsidian-filing.md). Mark the row (`noted` / `skip` / `fail`) and set `Vault path`. Question column is `user_question`. Comment-keyword CTAs (Comment “Sued”) — mark `skip`, do not extract.
+File per [obsidian-filing.md](obsidian-filing.md). Mark the row (`noted` / `skip` / `fail`) and set `Vault path`. Question column is `user_question`. If Question is empty, the **Name** prefix before `on Instagram:` is still the saved comment. Empty **Status** is queued — do not only SQL `Status = queued`. Look up `page_id` by URL if `update_page` 404s (IDs in a dump can swap `3c03`/`3c13`). Comment-keyword CTAs (Comment “Sued”) — mark `skip`, do not extract. yt-dlp often returns **one slide** for a carousel; file that slide and say so.
 
 More URLs: paste in chat, or a bookmark-HTML export of *chosen folders* into `exports/` (gitignored). Agents should not log into Google. Live handoffs: `BACKLOG.local.md` if present.
 
@@ -307,7 +311,7 @@ More URLs: paste in chat, or a bookmark-HTML export of *chosen folders* into `ex
 
 ## Security
 
-- Never commit, log, echo, or paste cookie contents
+- Never commit, log, echo, or paste cookie contents. Recipe: [auth.md](auth.md)
 - Re-export cookies on yt-dlp 403/auth errors
 - Downloads may contain PII — don't upload externally without asking
 
@@ -330,7 +334,9 @@ More URLs: paste in chat, or a bookmark-HTML export of *chosen folders* into `ex
 
 ## Changelog
 
-- **2026-08-19** — Renamed public GitHub repo to `ig-yt-x-knowledge-extract`. Config symlink is `~/.config/ig-yt-x-knowledge-extract`; `ig-reels-knowledge-extract` and `ig-reel` still resolve.
+- **2026-08-19** — Extract CLI is Python (`python scripts/igx.py …`) so Windows and Mac share one implementation. `.sh` files are thin Unix wrappers. No WSL required. Cookie path is still `~/.config/ig-cookies.txt`.
+- **2026-08-19** — Auth is documented for clones: [auth.md](auth.md). No Instagram OAuth. `scripts/check-setup.py` verifies the jar without printing values. `CLAUDE.md` / `GEMINI.md` / `.cursor/rules` point at `AGENTS.md`.
+- **2026-08-19** — Renamed public GitHub repo to `ig-yt-x-knowledge-extract`. Config symlink is `~/.config/ig-yt-x-knowledge-extract`; `ig-reels-knowledge-extract` and `ig-reel` still resolve. Local clone folder can match that name; scripts use the symlink, not the directory name.
 - **2026-08-19** — Public origin is pipeline-only. Saved inventories and machine notes stay gitignored (`AGENTS.local.md`, `local.env`, `exports/`). Vault/Notion IDs load from `local.env`.
 - **2026-08-18 (evening)** — Optional inbox email: one ping when queued first hits the configured threshold, then quiet until drained.
 - **2026-08-18 (evening)** — Remix/sample folders: title/artist from frames or speech, else `track_id: unknown` and continue. Add `vibe:` tags. No Shazam/`songrec`. See `AGENTS.md`.

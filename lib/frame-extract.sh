@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Extract JPG frames from a video. Sourced by transcribe-reel.sh — do not run directly.
+# Canonical implementation: lib/frame_extract.py (python scripts/igx.py reextract …)
+# This file is kept for older Mac notes that sourced it.
 set -euo pipefail
 
 # frame_extract VIDEO FRAMES_DIR INTERVAL

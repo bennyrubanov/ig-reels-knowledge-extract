@@ -42,24 +42,24 @@ Agents should complete steps 1–2 before cleanup. Never prune media for a reel 
 
 ## Cleanup commands
 
-Config root: `~/.config/ig-yt-x-knowledge-extract` (symlink to git repo; legacy `ig-reels-knowledge-extract` and `ig-reel` still resolve).
+Config root: `~/.config/ig-yt-x-knowledge-extract` (optional symlink; Windows uses the clone). Legacy `ig-reels-knowledge-extract` / `ig-reel` still resolve.
 
 **Preview** (always run first):
 
 ```bash
-~/.config/ig-yt-x-knowledge-extract/cleanup-downloads.sh --dry-run --days 30 --keep-noted
+python scripts/igx.py cleanup --dry-run --days 30 --keep-noted
 ```
 
 **Apply**:
 
 ```bash
-~/.config/ig-yt-x-knowledge-extract/cleanup-downloads.sh --days 30 --keep-noted
+python scripts/igx.py cleanup --days 30 --keep-noted
 ```
 
 **Aggressive** (no Obsidian guard — deletes all eligible media):
 
 ```bash
-~/.config/ig-yt-x-knowledge-extract/cleanup-downloads.sh --days 30
+python scripts/igx.py cleanup --days 30
 ```
 
 Override paths if needed:
@@ -86,7 +86,7 @@ YouTube: `downloads/youtube/{id}.*`.
 Re-extract frames anytime while `{id}.mp4` still exists:
 
 ```bash
-~/.config/ig-yt-x-knowledge-extract/reextract-frames.sh {id} --frame-interval 1
+python scripts/igx.py reextract {id} --frame-interval 1
 ```
 
 ---

@@ -1,3 +1,4 @@
+# Canonical implementation: lib/whisper_run.py
 # Shared transcription: faster-whisper (default) or openai-whisper (fallback).
 # Usage: source this file, then whisper_transcribe AUDIO OUTPUT_DIR [model]
 

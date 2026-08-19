@@ -1,10 +1,31 @@
 # Agent instructions — ig-yt-x-knowledge-extract
 
-Read this file first. Extraction steps: [docs/agent-workflow.md](docs/agent-workflow.md). Filing: [docs/obsidian-filing.md](docs/obsidian-filing.md). After a large queue: [docs/batch-briefing.md](docs/batch-briefing.md).
+Read this file first. Auth (no Instagram OAuth): [docs/auth.md](docs/auth.md). Extraction: [docs/agent-workflow.md](docs/agent-workflow.md). Filing: [docs/obsidian-filing.md](docs/obsidian-filing.md). After a large queue: [docs/batch-briefing.md](docs/batch-briefing.md).
 
 **If `AGENTS.local.md` exists, read it next.** That file is gitignored machine notes (inbox IDs, parked work, collection order). Cloud clones will not have it.
 
+| Tool | What it loads in this repo |
+|------|----------------------------|
+| Claude Code | [CLAUDE.md](CLAUDE.md) → this file |
+| Cursor | this file + [.cursor/rules](.cursor/rules) |
+| Codex | this file (`AGENTS.md`) |
+| Gemini CLI | [GEMINI.md](GEMINI.md) → this file |
+
 Obsidian is **knowledge-only** — summaries, analysis, wikilinks. All tooling stays in this repo.
+
+## First run (new clone)
+
+Someone pointed you at this GitHub repo. Do this on a **machine that can log into Instagram in a browser**. Cloud / Codespace cannot.
+
+```bash
+python3 scripts/check-setup.py
+```
+
+1. Clone + venv + `local.env` — [README.md](README.md). Symlink is optional (skip on Windows).
+2. **Cookies are not automatic.** There is no Graph API, no “Connect Instagram,” no app permission to grant Cursor/Claude/Codex. Scripts hard-require `~/.config/ig-cookies.txt` (Netscape, HttpOnly `sessionid`). If that file is missing, **stop** and give the human [docs/auth.md](docs/auth.md). Do not invent OAuth. Do not echo the jar.
+3. Optional X video: `~/.config/x-cookies.txt` — same pattern, not the X API.
+
+Never commit, log, echo, or paste cookie contents.
 
 ## Triggers
 
@@ -21,13 +42,15 @@ Scripts warn if `ollama ps` shows a loaded model. Whisper also uses RAM; confirm
 ## Quick start
 
 ```bash
-~/.config/ig-yt-x-knowledge-extract/transcribe-reel.sh "<REEL_URL>"
-~/.config/ig-yt-x-knowledge-extract/transcribe-carousel.sh "<POST_URL>"
-~/.config/ig-yt-x-knowledge-extract/transcribe-youtube.sh "<YOUTUBE_URL>"
-~/.config/ig-yt-x-knowledge-extract/transcribe-twitter.sh "<TWEET_URL>"
-~/.config/ig-yt-x-knowledge-extract/transcribe-batch.sh URL URL
-~/.config/ig-yt-x-knowledge-extract/extract-status.sh --jsonl /tmp/extract.jsonl
+python scripts/igx.py reel "<REEL_URL>"
+python scripts/igx.py carousel "<POST_URL>"
+python scripts/igx.py youtube "<YOUTUBE_URL>"
+python scripts/igx.py twitter "<TWEET_URL>"
+python scripts/igx.py batch URL URL
+python scripts/igx.py status --jsonl FILE
 ```
+
+Unix wrappers (`transcribe-reel.sh`, …) call the same Python. Config symlink `~/.config/ig-yt-x-knowledge-extract` is optional (legacy `ig-reels-knowledge-extract` / `ig-reel` still resolve). Windows: run from the clone; no symlink.
 
 Scoreboard is disk + vault. Do not count jsonl `fail` rows.
 
@@ -45,8 +68,8 @@ Then `transcribe-batch` those URLs and `mark --status noted` (or `skip` / `fail`
 | Item | Path |
 |------|------|
 | Repo | your clone |
-| Config symlink | `~/.config/ig-yt-x-knowledge-extract` → repo (legacy `ig-reels-knowledge-extract` and `ig-reel` still resolve) |
-| Cookies | `~/.config/ig-cookies.txt` (IG) · `~/.config/x-cookies.txt` (X, optional) |
+| Config symlink | `~/.config/ig-yt-x-knowledge-extract` → repo (optional). Windows uses the clone. Legacy `ig-reels-knowledge-extract` / `ig-reel` still resolve. |
+| Cookies | `~/.config/ig-cookies.txt` (IG, required) · `~/.config/x-cookies.txt` (X, optional). Recipe: [docs/auth.md](docs/auth.md) |
 | Vault | `OBSIDIAN_VAULT` or `local.env` (gitignored) |
 | Raw downloads | `downloads/` under the config symlink |
 | Saved ZIP | keep local; parse with `scripts/ig-saved-inventory.py` — do not commit the ZIP |
@@ -65,7 +88,7 @@ Document as you go. A learning that is only in chat is not captured. Pipeline le
 
 **Music / remix folders:** title + artist from frames or speech; else a lyrics hook + `track_id: unknown`. Add `vibe:` tags. There is no Shazam in this pipeline.
 
-Videos **>120s** skip frames by default; `reextract-frames.sh` or `ffmpeg -ss` if needed.
+Videos **>120s** skip frames by default; `python scripts/igx.py reextract {id}` (or `reextract-frames.sh`) if needed.
 
 ## Instagram comments (fact-check)
 
@@ -81,7 +104,7 @@ When asked for a comment to post on a reel:
 ## Missed frames?
 
 ```bash
-~/.config/ig-yt-x-knowledge-extract/reextract-frames.sh {id} --frame-interval 1
+python scripts/igx.py reextract {id} --frame-interval 1
 ```
 
 ## After a batch

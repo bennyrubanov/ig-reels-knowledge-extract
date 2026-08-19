@@ -1,0 +1,171 @@
+"""Shared subprocess helpers. Never print cookie values."""
+from __future__ import annotations
+
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+from local_config import ig_cookies_path, x_cookies_path
+from ocr_frames import write_ocr
+
+
+def which_or_none(name: str) -> str | None:
+    return shutil.which(name)
+
+
+def require_cmd(name: str) -> str:
+    path = shutil.which(name)
+    if not path:
+        print(f"{name} not found — required.", file=sys.stderr)
+        raise SystemExit(1)
+    return path
+
+
+def require_ig_cookies() -> Path:
+    path = ig_cookies_path()
+    if not path.is_file():
+        print(f"Cookie file missing: {path}", file=sys.stderr)
+        print("No Instagram OAuth / Graph API / Connect Instagram.", file=sys.stderr)
+        print("Scripts need a Netscape jar at ~/.config/ig-cookies.txt (HttpOnly sessionid).", file=sys.stderr)
+        print("Recipe: docs/auth.md  —  python3 scripts/check-setup.py", file=sys.stderr)
+        print("Do not commit, log, echo, or paste the file.", file=sys.stderr)
+        raise SystemExit(1)
+    return path
+
+
+def optional_x_cookies() -> Path | None:
+    path = x_cookies_path()
+    return path if path.is_file() else None
+
+
+def warn_ollama(*, for_whisper: bool = True) -> None:
+    if not shutil.which("ollama"):
+        return
+    try:
+        proc = subprocess.run(
+            ["ollama", "ps"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return
+    lines = [ln for ln in (proc.stdout or "").splitlines()[1:] if ln.strip()]
+    if not lines:
+        return
+    extra = " — Whisper uses RAM. Unload with: ollama stop <model>" if for_whisper else ""
+    print(f"WARNING: Ollama models loaded{extra}", file=sys.stderr)
+    print("\n".join(lines), file=sys.stderr)
+
+
+def probe_duration(path: Path) -> float:
+    proc = subprocess.run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            str(path),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    raw = (proc.stdout or "").strip()
+    try:
+        return float(raw) if raw else 0.0
+    except ValueError:
+        return 0.0
+
+
+def has_audio_stream(path: Path) -> bool:
+    proc = subprocess.run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-select_streams",
+            "a:0",
+            "-show_entries",
+            "stream=index",
+            "-of",
+            "csv=p=0",
+            str(path),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return bool((proc.stdout or "").strip())
+
+
+def ytdlp(
+    args: list[str],
+    *,
+    cookies: Path | None = None,
+    check: bool = False,
+    capture: bool = False,
+    live_stderr: bool = False,
+) -> subprocess.CompletedProcess[str]:
+    cmd = [require_cmd("yt-dlp")]
+    if cookies is not None:
+        cmd += ["--cookies", str(cookies)]
+    cmd += args
+    if live_stderr:
+        return subprocess.run(
+            cmd,
+            check=check,
+            stdout=subprocess.PIPE,
+            stderr=None,
+            text=True,
+        )
+    return subprocess.run(
+        cmd,
+        check=check,
+        capture_output=capture,
+        text=True,
+    )
+
+
+def ytdlp_print(query: str, url: str, *, cookies: Path | None = None) -> str:
+    proc = ytdlp(["--print", query, url], cookies=cookies, capture=True)
+    return (proc.stdout or "").strip()
+
+
+def extract_audio_aac(video: Path, audio: Path) -> bool:
+    proc = subprocess.run(
+        [
+            require_cmd("ffmpeg"),
+            "-y",
+            "-i",
+            str(video),
+            "-vn",
+            "-acodec",
+            "aac",
+            "-b:a",
+            "128k",
+            str(audio),
+            "-loglevel",
+            "error",
+        ],
+        check=False,
+    )
+    return proc.returncode == 0 and audio.is_file()
+
+
+def ocr_to_file(*dirs: Path, out: Path, jobs: int = 6) -> None:
+    try:
+        if not shutil.which("tesseract"):
+            print("WARNING: tesseract not on PATH — skip OCR", file=sys.stderr)
+            return
+        existing = [d for d in dirs if d.is_dir()]
+        if not existing:
+            return
+        write_ocr(*existing, out=out, jobs=jobs)
+    except Exception as exc:  # noqa: BLE001 — extract continues without OCR
+        print(f"WARNING: OCR failed — extract continues ({exc})", file=sys.stderr)

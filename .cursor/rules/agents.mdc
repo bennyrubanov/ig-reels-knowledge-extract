@@ -1,0 +1,10 @@
+---
+description: Load repo AGENTS.md (no Instagram OAuth — Netscape cookie jar)
+alwaysApply: true
+---
+
+Read [AGENTS.md](AGENTS.md) first. If `AGENTS.local.md` exists, read it next.
+
+Instagram download is **not** an app grant. There is no Graph API or “Connect Instagram.” Scripts require `~/.config/ig-cookies.txt`. If it is missing, stop and follow [docs/auth.md](docs/auth.md). Never echo cookie contents.
+
+CLI: `python scripts/igx.py reel URL` (Unix: `transcribe-reel.sh`). Extraction: [docs/agent-workflow.md](docs/agent-workflow.md). Filing: [docs/obsidian-filing.md](docs/obsidian-filing.md).

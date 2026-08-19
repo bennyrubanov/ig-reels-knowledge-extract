@@ -4,41 +4,66 @@ Download Instagram, YouTube, or X media, pull captions and frames, transcribe wi
 
 No paid APIs. Cookies stay on your machine. Scripts warn if `ollama ps` shows a loaded model (Whisper also needs RAM).
 
+**Point an agent at this clone** (Claude Code, Cursor, Codex, Gemini CLI, …): they should read `AGENTS.md` first. Instagram is **not** an OAuth grant — [docs/auth.md](docs/auth.md).
+
 ## Setup
+
+**macOS / Linux**
 
 ```bash
 git clone git@github.com:bennyrubanov/ig-yt-x-knowledge-extract.git
 cd ig-yt-x-knowledge-extract
 ln -sfn "$(pwd)" ~/.config/ig-yt-x-knowledge-extract
-# Older names still work if those symlinks exist:
-#   ~/.config/ig-reels-knowledge-extract  ~/.config/ig-reel
 python3 -m venv whisper-venv
 ./whisper-venv/bin/pip install openai-whisper faster-whisper
 cp local.env.example local.env   # set OBSIDIAN_VAULT
+python3 scripts/check-setup.py
 ```
 
-Dependencies: `yt-dlp`, `ffmpeg`, `ffprobe`, optional `tesseract` for on-screen OCR.
+**Windows (PowerShell)** — no symlink required. The clone *is* the install root.
 
-**Instagram cookies:** there is no Instagram OAuth or app login. `transcribe-reel.sh` reads a Netscape cookie jar at `~/.config/ig-cookies.txt` (`chmod 600`). Export it from a browser that is already logged into instagram.com, and include the HttpOnly `sessionid`. yt-dlp can also pull cookies from Chrome in an attended run (`--cookies-from-browser`); the scripts do not do that by default. Never commit, log, or paste the file. X login wall: `~/.config/x-cookies.txt`.
+```powershell
+git clone git@github.com:bennyrubanov/ig-yt-x-knowledge-extract.git
+cd ig-yt-x-knowledge-extract
+winget install -e --id yt-dlp.yt-dlp
+winget install -e --id Gyan.FFmpeg
+python -m venv whisper-venv
+.\whisper-venv\Scripts\pip install openai-whisper faster-whisper
+copy local.env.example local.env
+python scripts\check-setup.py
+```
+
+Use `Gyan.FFmpeg` so `ffmpeg` is on PATH (`yt-dlp.FFmpeg` often is not). Optional: Tesseract for on-screen OCR.
+
+Cookies: `%USERPROFILE%\.config\ig-cookies.txt` (same `~/.config/ig-cookies.txt` path). Recipe: [docs/auth.md](docs/auth.md).
+
+Dependencies: `yt-dlp`, `ffmpeg`, `ffprobe`, optional `tesseract`.
+
+**Instagram cookies:** there is no Instagram OAuth, Graph API, or “Connect Instagram.” You log into instagram.com in a browser. The pipeline reuses that session via a Netscape jar at `~/.config/ig-cookies.txt` (include HttpOnly `sessionid`; `chmod 600` on Unix). Scripts exit if the file is missing. Full recipe: [docs/auth.md](docs/auth.md). Never commit, log, or paste the file. X login wall (optional): `~/.config/x-cookies.txt`.
 
 ## Usage
 
+Python is the CLI on every OS. `.sh` files are Unix wrappers around the same commands.
+
 ```bash
-~/.config/ig-yt-x-knowledge-extract/transcribe-reel.sh 'https://www.instagram.com/reel/…'
-~/.config/ig-yt-x-knowledge-extract/transcribe-carousel.sh 'https://www.instagram.com/p/…'
-~/.config/ig-yt-x-knowledge-extract/transcribe-youtube.sh 'https://www.youtube.com/watch?v=…'
-~/.config/ig-yt-x-knowledge-extract/transcribe-twitter.sh 'https://x.com/user/status/…'
-~/.config/ig-yt-x-knowledge-extract/transcribe-batch.sh URL1 URL2   # MAX_JOBS=2; --jsonl FILE
-~/.config/ig-yt-x-knowledge-extract/extract-status.sh --jsonl FILE
+python scripts/igx.py reel 'https://www.instagram.com/reel/…'
+python scripts/igx.py carousel 'https://www.instagram.com/p/…'
+python scripts/igx.py youtube 'https://www.youtube.com/watch?v=…'
+python scripts/igx.py twitter 'https://x.com/user/status/…'
+python scripts/igx.py batch URL1 URL2          # --workers 2; --jsonl FILE
+python scripts/igx.py status --jsonl FILE
+python scripts/igx.py reextract SHORTCODE --frame-interval 1
 ```
 
-`extract-status.sh` is the scoreboard (disk + vault). Do not count jsonl `fail` rows.
+Unix aliases (same flags): `transcribe-reel.sh`, `transcribe-carousel.sh`, `transcribe-youtube.sh`, `transcribe-twitter.sh`, `transcribe-batch.sh`, `extract-status.sh`, `reextract-frames.sh`.
 
-`transcribe-*.sh` already runs `ollama ps` and warns if a model is loaded. Harmless when Ollama is absent or idle.
+`igx status` / `extract-status.sh` is the scoreboard (disk + vault). Do not count jsonl `fail` rows.
+
+The pipeline warns if `ollama ps` shows a loaded model. Harmless when Ollama is absent or idle.
 
 ## What you get per item
 
-Under `downloads/` (gitignored): video, audio, Whisper `{id}.txt`, caption `{id}.description.txt`, OCR `{id}.ocr.txt`, frames or carousel slides. Videos longer than 120s skip frames; re-run `reextract-frames.sh {id}` if you need them.
+Under `downloads/` (gitignored): video, audio, Whisper `{id}.txt`, caption `{id}.description.txt`, OCR `{id}.ocr.txt`, frames or carousel slides. Videos longer than 120s skip frames; re-run `python scripts/igx.py reextract {id}` if you need them.
 
 Then write a receipt in your vault (`instagram/extractions/{id}-{slug}.md`) and a human page in a knowledge-center folder. See [docs/obsidian-filing.md](docs/obsidian-filing.md).
 
@@ -60,8 +85,9 @@ Optional Notion paste-inbox: set `NOTION_DATABASE_ID` / `NOTION_DATA_SOURCE_ID` 
 
 | File | For |
 |------|-----|
-| [AGENTS.md](AGENTS.md) | Agent entry point |
-| [docs/agent-workflow.md](docs/agent-workflow.md) | Extraction steps, failures, cookies |
+| [AGENTS.md](AGENTS.md) | Agent entry point (Claude / Cursor / Codex / Gemini) |
+| [docs/auth.md](docs/auth.md) | Cookie jar — no OAuth |
+| [docs/agent-workflow.md](docs/agent-workflow.md) | Extraction steps, failures |
 | [docs/obsidian-filing.md](docs/obsidian-filing.md) | Where notes go |
 | [docs/batch-briefing.md](docs/batch-briefing.md) | After a large queue |
 | [docs/storage-retention.md](docs/storage-retention.md) | Prune downloads |
