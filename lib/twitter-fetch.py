@@ -30,7 +30,7 @@ def status_id(arg: str) -> str:
 def fetch(tid: str) -> dict:
     req = urllib.request.Request(
         API.format(id=tid),
-        headers={"User-Agent": "ig-reels-knowledge-extract/1.0"},
+        headers={"User-Agent": "ig-yt-x-knowledge-extract/1.0"},
     )
     with urllib.request.urlopen(req, timeout=30) as resp:
         data = json.loads(resp.read().decode("utf-8"))
@@ -40,7 +40,7 @@ def fetch(tid: str) -> dict:
 
 
 def download(url: str, dest: Path) -> None:
-    req = urllib.request.Request(url, headers={"User-Agent": "ig-reels-knowledge-extract/1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent": "ig-yt-x-knowledge-extract/1.0"})
     with urllib.request.urlopen(req, timeout=60) as resp:
         dest.write_bytes(resp.read())
 

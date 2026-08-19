@@ -2,7 +2,9 @@
 # Re-extract frames from an already-downloaded reel (no re-download, no re-transcribe).
 set -euo pipefail
 
-CONFIG_ROOT="${IG_REELS_ROOT:-${HOME}/.config/ig-reels-knowledge-extract}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib/config-root.sh
+source "${SCRIPT_DIR}/lib/config-root.sh"
 DOWNLOAD_DIR="${CONFIG_ROOT}/downloads"
 FRAME_INTERVAL="${IG_REEL_FRAME_INTERVAL:-1}"
 

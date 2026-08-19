@@ -1,15 +1,17 @@
-# ig-reels-knowledge-extract
+# ig-yt-x-knowledge-extract
 
 Download Instagram, YouTube, or X media, pull captions and frames, transcribe with Whisper, and file notes in Obsidian. Built for agent-assisted review (charts, on-screen text, spoken claims).
 
-No paid APIs. Cookies stay on your machine. Do not run Whisper next to a loaded Ollama session (~2 GB RAM for `small`).
+No paid APIs. Cookies stay on your machine. Scripts warn if `ollama ps` shows a loaded model (Whisper also needs RAM).
 
 ## Setup
 
 ```bash
-git clone git@github.com:bennyrubanov/ig-reels-knowledge-extract.git
-cd ig-reels-knowledge-extract
-ln -sfn "$(pwd)" ~/.config/ig-reels-knowledge-extract
+git clone git@github.com:bennyrubanov/ig-yt-x-knowledge-extract.git
+cd ig-yt-x-knowledge-extract
+ln -sfn "$(pwd)" ~/.config/ig-yt-x-knowledge-extract
+# Older names still work if those symlinks exist:
+#   ~/.config/ig-reels-knowledge-extract  ~/.config/ig-reel
 python3 -m venv whisper-venv
 ./whisper-venv/bin/pip install openai-whisper faster-whisper
 cp local.env.example local.env   # set OBSIDIAN_VAULT
@@ -17,28 +19,22 @@ cp local.env.example local.env   # set OBSIDIAN_VAULT
 
 Dependencies: `yt-dlp`, `ffmpeg`, `ffprobe`, optional `tesseract` for on-screen OCR.
 
-**Instagram cookies** (Netscape, `chmod 600`):
-
-1. Log into instagram.com
-2. Export cookies (include HttpOnly `sessionid`)
-3. Save to `~/.config/ig-cookies.txt`
-
-Never commit, log, or paste cookie contents. X login wall: `~/.config/x-cookies.txt`.
+**Instagram cookies:** there is no Instagram OAuth or app login. `transcribe-reel.sh` reads a Netscape cookie jar at `~/.config/ig-cookies.txt` (`chmod 600`). Export it from a browser that is already logged into instagram.com, and include the HttpOnly `sessionid`. yt-dlp can also pull cookies from Chrome in an attended run (`--cookies-from-browser`); the scripts do not do that by default. Never commit, log, or paste the file. X login wall: `~/.config/x-cookies.txt`.
 
 ## Usage
 
 ```bash
-~/.config/ig-reels-knowledge-extract/transcribe-reel.sh 'https://www.instagram.com/reel/…'
-~/.config/ig-reels-knowledge-extract/transcribe-carousel.sh 'https://www.instagram.com/p/…'
-~/.config/ig-reels-knowledge-extract/transcribe-youtube.sh 'https://www.youtube.com/watch?v=…'
-~/.config/ig-reels-knowledge-extract/transcribe-twitter.sh 'https://x.com/user/status/…'
-~/.config/ig-reels-knowledge-extract/transcribe-batch.sh URL1 URL2   # MAX_JOBS=2; --jsonl FILE
-~/.config/ig-reels-knowledge-extract/extract-status.sh --jsonl FILE
+~/.config/ig-yt-x-knowledge-extract/transcribe-reel.sh 'https://www.instagram.com/reel/…'
+~/.config/ig-yt-x-knowledge-extract/transcribe-carousel.sh 'https://www.instagram.com/p/…'
+~/.config/ig-yt-x-knowledge-extract/transcribe-youtube.sh 'https://www.youtube.com/watch?v=…'
+~/.config/ig-yt-x-knowledge-extract/transcribe-twitter.sh 'https://x.com/user/status/…'
+~/.config/ig-yt-x-knowledge-extract/transcribe-batch.sh URL1 URL2   # MAX_JOBS=2; --jsonl FILE
+~/.config/ig-yt-x-knowledge-extract/extract-status.sh --jsonl FILE
 ```
 
 `extract-status.sh` is the scoreboard (disk + vault). Do not count jsonl `fail` rows.
 
-Check `ollama ps` first. If a model is loaded, wait or ask before Whisper.
+`transcribe-*.sh` already runs `ollama ps` and warns if a model is loaded. Harmless when Ollama is absent or idle.
 
 ## What you get per item
 

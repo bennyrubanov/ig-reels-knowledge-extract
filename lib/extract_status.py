@@ -16,9 +16,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from local_config import default_vault
+from local_config import config_root, default_vault
 
-DEFAULT_DOWNLOADS = Path.home() / ".config/ig-reels-knowledge-extract/downloads"
+DEFAULT_DOWNLOADS = config_root() / "downloads"
 DEFAULT_VAULT = default_vault()
 
 FAIL_STATUSES = frozenset({"fail", "timeout", "error"})

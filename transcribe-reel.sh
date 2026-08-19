@@ -3,7 +3,9 @@
 set -euo pipefail
 
 COOKIES="${HOME}/.config/ig-cookies.txt"
-CONFIG_ROOT="${IG_REELS_ROOT:-${HOME}/.config/ig-reels-knowledge-extract}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib/config-root.sh
+source "${SCRIPT_DIR}/lib/config-root.sh"
 VENV="${CONFIG_ROOT}/whisper-venv"
 DOWNLOAD_DIR="${CONFIG_ROOT}/downloads"
 MODEL="small"

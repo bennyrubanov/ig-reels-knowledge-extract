@@ -42,30 +42,30 @@ Agents should complete steps 1–2 before cleanup. Never prune media for a reel 
 
 ## Cleanup commands
 
-Config root: `~/.config/ig-reels-knowledge-extract` (symlink to git repo).
+Config root: `~/.config/ig-yt-x-knowledge-extract` (symlink to git repo; legacy `ig-reels-knowledge-extract` and `ig-reel` still resolve).
 
 **Preview** (always run first):
 
 ```bash
-~/.config/ig-reels-knowledge-extract/cleanup-downloads.sh --dry-run --days 30 --keep-noted
+~/.config/ig-yt-x-knowledge-extract/cleanup-downloads.sh --dry-run --days 30 --keep-noted
 ```
 
 **Apply**:
 
 ```bash
-~/.config/ig-reels-knowledge-extract/cleanup-downloads.sh --days 30 --keep-noted
+~/.config/ig-yt-x-knowledge-extract/cleanup-downloads.sh --days 30 --keep-noted
 ```
 
 **Aggressive** (no Obsidian guard — deletes all eligible media):
 
 ```bash
-~/.config/ig-reels-knowledge-extract/cleanup-downloads.sh --days 30
+~/.config/ig-yt-x-knowledge-extract/cleanup-downloads.sh --days 30
 ```
 
 Override paths if needed:
 
 ```bash
-IG_REELS_ROOT=~/.config/ig-reels-knowledge-extract \
+IG_REELS_ROOT=~/.config/ig-yt-x-knowledge-extract \
 OBSIDIAN_VAULT="$HOME/Documents/Obsidian" \
   cleanup-downloads.sh --dry-run --days 30 --keep-noted
 ```
@@ -86,7 +86,7 @@ YouTube: `downloads/youtube/{id}.*`.
 Re-extract frames anytime while `{id}.mp4` still exists:
 
 ```bash
-~/.config/ig-reels-knowledge-extract/reextract-frames.sh {id} --frame-interval 1
+~/.config/ig-yt-x-knowledge-extract/reextract-frames.sh {id} --frame-interval 1
 ```
 
 ---
@@ -131,8 +131,8 @@ Raw mp4/frames may be pruned; **source links and text dumps are permanent** (`{i
 Backfill OCR for already-downloaded frames/slides:
 
 ```bash
-~/.config/ig-reels-knowledge-extract/ocr-backfill.sh          # skip ids that already have .ocr.txt
-~/.config/ig-reels-knowledge-extract/ocr-backfill.sh --force  # redo
+~/.config/ig-yt-x-knowledge-extract/ocr-backfill.sh          # skip ids that already have .ocr.txt
+~/.config/ig-yt-x-knowledge-extract/ocr-backfill.sh --force  # redo
 ```
 
 ---

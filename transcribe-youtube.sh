@@ -2,11 +2,12 @@
 # Download YouTube: native captions first (fast), else faster-whisper with ETA + progress log.
 set -euo pipefail
 
-CONFIG_ROOT="${IG_REELS_ROOT:-${HOME}/.config/ig-reels-knowledge-extract}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib/config-root.sh
+source "${SCRIPT_DIR}/lib/config-root.sh"
 VENV="${CONFIG_ROOT}/whisper-venv"
 DOWNLOAD_DIR="${CONFIG_ROOT}/downloads/youtube"
 MODEL="small"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PYTHON="${VENV}/bin/python3"
 
 usage() {

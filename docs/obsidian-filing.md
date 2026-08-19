@@ -16,7 +16,7 @@ Agents write **knowledge notes** here. Tooling, scripts, and extraction workflow
 | Folder structure & categorization decisions | Agent runbooks (→ git repo) |
 | Synthesized trading/options learnings | Cookie/setup instructions |
 
-Raw media stays in `~/.config/ig-reels-knowledge-extract/downloads/`.
+Raw media stays in `~/.config/ig-yt-x-knowledge-extract/downloads/`.
 
 ---
 
@@ -28,10 +28,10 @@ Shortcodes start with `D`. That is why extractions are nested — otherwise they
 
 | Folder | Contents |
 |--------|----------|
-| `health/` | Do-list, grocery receipts, altitude. Start at `health/_index.md` |
-| `wealth/` | Investing (no separate `investing/` folder). Ranked books, ticker map, `investments/`, `companies/` |
-| `building-an-app/` | Shipping / hosting / skills takeaways |
-| `marketing-an-app/` | IG Saved marketing-an-app + spyglass / Coframe |
+| `health/` | Health notes. Start at `health/_index.md` |
+| `wealth/` | Investing (no separate `investing/` folder). Books, ticker map, `investments/`, `companies/` |
+| `building-an-app/` | Shipping / hosting takeaways |
+| `marketing-an-app/` | Marketing notes from Saved or other sources |
 | `privacy/` `real-estate/` `travel/` `decisions/` | That domain’s `_index.md` |
 | `people/` `ai/` | Person hubs / papers |
 | `instagram/extractions/{id}-{slug}.md` | One reel / carousel (receipt) |

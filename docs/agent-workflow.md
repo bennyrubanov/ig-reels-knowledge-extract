@@ -1,6 +1,6 @@
 # Agent workflow — extraction & analysis
 
-Canonical instructions for Cursor/OpenCode agents. **Not in Obsidian** — this repo only.
+Canonical instructions for agents. **Not in Obsidian** — this repo only.
 
 Cross-ref: [AGENTS.md](../AGENTS.md) (entry point), [README.md](../README.md) (setup & CLI), [obsidian-filing.md](obsidian-filing.md) (where notes go), [batch-briefing.md](batch-briefing.md) (after a large queue). Machine notes: `AGENTS.local.md` if present.
 
@@ -11,7 +11,7 @@ Cross-ref: [AGENTS.md](../AGENTS.md) (entry point), [README.md](../README.md) (s
 | Layer | Location | Role |
 |-------|----------|------|
 | **This repo** | clone / config symlink | Scripts, agent docs, venv, downloads |
-| **Config symlink** | `~/.config/ig-reels-knowledge-extract` | Same as repo (legacy `~/.config/ig-reel` works) |
+| **Config symlink** | `~/.config/ig-yt-x-knowledge-extract` | Same as repo (legacy `ig-reels-knowledge-extract` and `ig-reel` still resolve) |
 | **Instagram auth** | `~/.config/ig-cookies.txt` | Netscape cookies, chmod 600 |
 | **Obsidian vault** | `OBSIDIAN_VAULT` or `local.env` | **Knowledge only** — no agent/tooling docs |
 | **Notion inbox** | optional; IDs in `local.env` | Paste-URL queue. Poll with `scripts/notion-extract-inbox.py`. |
@@ -25,21 +25,21 @@ Cross-ref: [AGENTS.md](../AGENTS.md) (entry point), [README.md](../README.md) (s
 | **yt-dlp** | Download Instagram/YouTube; description; optional native subs |
 | **X / Twitter** | `transcribe-twitter.sh` — FixTweet for thread text + photos; yt-dlp for video. `WebFetch` on x.com is **403**. Optional `~/.config/x-cookies.txt`. Not the official X API. |
 | **ffmpeg / ffprobe** | Audio, frames, duration, scene detection |
-| **faster-whisper** (default) | Transcription (~6.5× RTF on M2 Max; ~2.2–2.8× vs openai-whisper) |
+| **faster-whisper** (default) | Transcription (typically several× realtime; ~2–3× vs openai-whisper on the same machine) |
 | **openai-whisper** | Fallback: `WHISPER_BACKEND=openai` (~2–3× RTF) |
 | **Cursor Read** | Vision on frame JPGs |
 
-No paid APIs. Unload Ollama before runs (`ollama ps` → warn user, wait for confirm).
+No paid APIs. Scripts already warn if `ollama ps` shows a loaded model.
 
 ---
 
-## Step 1 — Ollama check (required)
+## Step 1 — Ollama check
 
 ```bash
 ollama ps
 ```
 
-If models loaded, stop and ask user to unload or confirm before proceeding. Skip entirely if OpenCode/local coding agent is active.
+If a model is loaded, warn and confirm before a long Whisper run. If `ollama` is not installed, skip. The transcribe scripts already print the same warning.
 
 ---
 
@@ -59,7 +59,7 @@ If models loaded, stop and ask user to unload or confirm before proceeding. Skip
 ### X / Twitter: `transcribe-twitter.sh`
 
 ```bash
-~/.config/ig-reels-knowledge-extract/transcribe-twitter.sh 'https://x.com/user/status/…'
+~/.config/ig-yt-x-knowledge-extract/transcribe-twitter.sh 'https://x.com/user/status/…'
 ```
 
 | Get | How |
@@ -98,8 +98,8 @@ Measured (Dwarkesh `oZBGAuANX6I`): manual captions beat Whisper `small` on names
 For **`instagram.com/p/...`** posts — series of images ± video slides + one caption.
 
 ```bash
-~/.config/ig-reels-knowledge-extract/transcribe-carousel.sh 'https://www.instagram.com/p/...'
-~/.config/ig-reels-knowledge-extract/transcribe-carousel.sh 'URL' --transcribe-videos   # Whisper on video slides
+~/.config/ig-yt-x-knowledge-extract/transcribe-carousel.sh 'https://www.instagram.com/p/...'
+~/.config/ig-yt-x-knowledge-extract/transcribe-carousel.sh 'URL' --transcribe-videos   # Whisper on video slides
 ```
 
 **Outputs:**
@@ -155,7 +155,7 @@ GEX test reel (Da3iJOOIEkw): 5 scene cuts / 89s → **1s** with default or auto.
 4. One-off grab if gap:
 
 ```bash
-ffmpeg -y -ss 42 -i ~/.config/ig-reels-knowledge-extract/downloads/{id}.mp4 \
+ffmpeg -y -ss 42 -i ~/.config/ig-yt-x-knowledge-extract/downloads/{id}.mp4 \
   -frames:v 1 -q:v 2 /tmp/frame_42.jpg
 ```
 
@@ -166,11 +166,11 @@ If analysis reveals gaps (chart mentioned at t=37 but nearest frame is t=36 or t
 **Preferred — re-extract frames only** (mp4 already on disk; skips download + Whisper):
 
 ```bash
-~/.config/ig-reels-knowledge-extract/reextract-frames.sh {id} --frame-interval 1
+~/.config/ig-yt-x-knowledge-extract/reextract-frames.sh {id} --frame-interval 1
 # or denser still:
-~/.config/ig-reels-knowledge-extract/reextract-frames.sh {id} --frame-interval 1
+~/.config/ig-yt-x-knowledge-extract/reextract-frames.sh {id} --frame-interval 1
 # scene mode for montage-heavy reels:
-~/.config/ig-reels-knowledge-extract/reextract-frames.sh {id} --frame-interval scene
+~/.config/ig-yt-x-knowledge-extract/reextract-frames.sh {id} --frame-interval scene
 ```
 
 This **replaces** `{id}/frames/*.jpg`. Transcript and video unchanged.
@@ -178,7 +178,7 @@ This **replaces** `{id}/frames/*.jpg`. Transcript and video unchanged.
 **Full re-run** only if video missing or you need re-transcription:
 
 ```bash
-~/.config/ig-reels-knowledge-extract/transcribe-reel.sh 'REEL_URL' --frame-interval 1
+~/.config/ig-yt-x-knowledge-extract/transcribe-reel.sh 'REEL_URL' --frame-interval 1
 ```
 
 Videos **>120s**: frames skipped by default; use manual `ffmpeg -ss` seeks on `{id}.mp4`.
@@ -238,8 +238,8 @@ Investment notes: **Source summary** (author’s argument) and **Investment impl
 After note exists, optional cleanup (see [storage-retention.md](storage-retention.md)):
 
 ```bash
-~/.config/ig-reels-knowledge-extract/cleanup-downloads.sh --dry-run --days 30 --keep-noted
-~/.config/ig-reels-knowledge-extract/cleanup-downloads.sh --days 30 --keep-noted
+~/.config/ig-yt-x-knowledge-extract/cleanup-downloads.sh --dry-run --days 30 --keep-noted
+~/.config/ig-yt-x-knowledge-extract/cleanup-downloads.sh --days 30 --keep-noted
 ```
 
 ---
@@ -247,7 +247,7 @@ After note exists, optional cleanup (see [storage-retention.md](storage-retentio
 ## Outputs per reel
 
 ```
-~/.config/ig-reels-knowledge-extract/downloads/
+~/.config/ig-yt-x-knowledge-extract/downloads/
   {id}.mp4
   {id}.m4a
   {id}.txt
@@ -276,7 +276,7 @@ Full details, cleanup commands, and **source link retention**: **[storage-retent
 
 ---
 
-## Time estimates (M2 Max 32GB)
+## Time estimates (example Apple Silicon, 32 GB)
 
 | Step | ~90s reel |
 |------|-----------|
@@ -324,19 +324,20 @@ More URLs: paste in chat, or a bookmark-HTML export of *chosen folders* into `ex
 | Empty IG media, post still live | Cookie file missing `sessionid` | Re-export with HttpOnly, or attended `--cookies-from-browser` |
 | jsonl says `fail`, media/note exists | Append-only log; last-write is stale | `extract-status.sh --jsonl FILE` (optionally `--write-recovered`) |
 | Frames skipped | Video >120s | `ffmpeg -ss T -frames:v 1` or `reextract-frames.sh` |
-| Export caption ≠ slides | IG Saved JSON caption/owner can attach to the wrong post. Same blob (e.g. Jatho “recorded this 3 times”) is reused on many IDs | Trust downloaded slides / Whisper / `{id}.description.txt`. Re-check `inventory.jsonl` vs media |
+| Export caption ≠ slides | IG Saved JSON caption/owner can attach to the wrong post. The same caption blob is often reused on many IDs | Trust downloaded slides / Whisper / `{id}.description.txt`. Re-check `inventory.jsonl` vs media |
 
 ---
 
 ## Changelog
 
+- **2026-08-19** — Renamed public GitHub repo to `ig-yt-x-knowledge-extract`. Config symlink is `~/.config/ig-yt-x-knowledge-extract`; `ig-reels-knowledge-extract` and `ig-reel` still resolve.
 - **2026-08-19** — Public origin is pipeline-only. Saved inventories and machine notes stay gitignored (`AGENTS.local.md`, `local.env`, `exports/`). Vault/Notion IDs load from `local.env`.
 - **2026-08-18 (evening)** — Optional inbox email: one ping when queued first hits the configured threshold, then quiet until drained.
-- **2026-08-18 (evening)** — Music producing/DJ extract started. Hub `music-producing/`. Remix/sample tracks: title/artist from frames or speech, else `track_id: unknown` and continue. Add `vibe:` tags (tiktok / chill / orchestral / …). No Shazam/`songrec`. `MAX_JOBS=1` while other agents run. See `AGENTS.md`.
+- **2026-08-18 (evening)** — Remix/sample folders: title/artist from frames or speech, else `track_id: unknown` and continue. Add `vibe:` tags. No Shazam/`songrec`. See `AGENTS.md`.
 - **2026-08-18 (evening)** — Parked handoffs live in `BACKLOG.local.md` (gitignored). Committed [BACKLOG.md](BACKLOG.md) is the pattern only.
 - **2026-08-18 (evening)** — Optional Notion paste-inbox: Status / Question / Topics / Media ID / Vault path. Local poll `scripts/notion-extract-inbox.py`. Inbox IDs stay in `local.env`. No cookies on a remote poller. Saved ZIP dumps stay dated and local.
-- **2026-08-18 (evening)** — Cross-repo build keeps (IDOR, RLS≠columns, empty states) go in `~/Coding_Projects/cursor-skills/skills/shipping-app-checks/`, then `./install.sh`. Receipts stay in the vault.
-- **2026-08-18 (evening)** — Official IG Saved ZIP (`exports/` inventory, ZIP itself stays in `~/.config/…/exports/`). `scripts/ig-saved-inventory.py` is the audit. Wanted folders listed in `AGENTS.md`. Knowledge = tools/workflows/patterns on the hub, not a title list. First extract: building-an-app + marketing-an-app. **Export captions lie** — `Da0EeF1DTZ-` / `DZK5YrvjiT3` captions did not match slides.
+- **2026-08-18 (evening)** — Cross-repo build keeps stay in the operator’s skills library, not in this vault. Receipts stay in the vault.
+- **2026-08-18 (evening)** — Official IG Saved ZIP (`exports/` inventory; keep the ZIP local). `scripts/ig-saved-inventory.py` is the audit. Optional `wanted-collections.txt` limits which folders get queues. Knowledge = tools/workflows/patterns on the hub, not a title list. **Export captions lie** — the same caption blob is often reused on many IDs.
 - **2026-08-18 (evening)** — Vault: knowledge centers at root (`health/`, `wealth/`, `building-an-app/`, …). Reports live *in* that folder. Instagram is `extractions/` + `runs/` only. Investing lives in `wealth/`.
 - **2026-08-18 (afternoon)** — Document-as-you-go is required (see `AGENTS.md`). Earlier split (`_reports/` / `_runs/` / nested sources) superseded the same evening. No IG Saved OAuth — official export JSON. Reports the operator will reread live in Obsidian; a Cursor canvas is a twin, never the only copy.
 - **2026-08-18** — Vault: `_reports/` (takes), `_runs/` (process), `instagram/` (hubs + `_sources/`). Folder maps: `_index.md`, `instagram/_index.md`. `{id}.ocr.txt` (tesseract); keep-forever; `ocr-backfill.sh`. First TL;DR bullet is **Your question:** when `user_question` is set. `extract-status.sh` scoreboard; `extract-queue.py`; reel/twitter survive mjpeg / no-audio; image-only carousel; Twitter disk-bomb fix; live hotwords; [batch-briefing.md](batch-briefing.md)

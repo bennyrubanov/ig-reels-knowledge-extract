@@ -1,13 +1,19 @@
 # Shared transcription: faster-whisper (default) or openai-whisper (fallback).
 # Usage: source this file, then whisper_transcribe AUDIO OUTPUT_DIR [model]
 
+if [[ -z "${CONFIG_ROOT:-}" ]]; then
+  _here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  # shellcheck source=config-root.sh
+  source "${_here}/config-root.sh"
+fi
+
 whisper_transcribe() {
   local audio="$1"
   local out_dir="$2"
   local model="${3:-small}"
-  local venv="${VENV:-${IG_REELS_ROOT:-${HOME}/.config/ig-reels-knowledge-extract}/whisper-venv}"
+  local venv="${VENV:-${CONFIG_ROOT}/whisper-venv}"
   local backend="${WHISPER_BACKEND:-faster}"
-  local root="${SCRIPT_DIR:-${IG_REELS_ROOT:-${HOME}/.config/ig-reels-knowledge-extract}}"
+  local root="${SCRIPT_DIR:-${CONFIG_ROOT}}"
   local lib_dir="${root}/lib"
 
   local python_bin="${venv}/bin/python3"
@@ -30,7 +36,7 @@ whisper_transcribe() {
   duration_sec=${duration_sec%%.*}
   duration_min=$(( (duration_sec + 59) / 60 ))
 
-  # RTF measured 2026-08-17 M2 Max 32GB (see README):
+  # RTF ballpark (Apple Silicon, 32 GB class):
   #   faster-whisper small int8: ~6.5x on long audio (4.6x on ~72s; model load)
   #   openai-whisper small:      ~2–3x
   local rtf=6 engine="faster-whisper"
@@ -72,7 +78,7 @@ whisper_transcribe() {
     echo "Engine:    $engine"
     echo "Audio:     $audio"
     echo "Duration:  ${duration_min}m (${duration_sec}s)"
-    echo "Model:     $model (expected RTF ~${rtf}x on M2 Max)"
+    echo "Model:     $model (expected RTF ~${rtf}x)"
     echo "Estimate:  ~${est_min}m (${est_sec}s wall clock)"
     echo "Log:       $log"
     echo "Started:   $(date '+%Y-%m-%d %H:%M:%S')"

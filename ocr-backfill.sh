@@ -3,9 +3,10 @@
 # Usage: ocr-backfill.sh [--force] [--jobs N]
 set -euo pipefail
 
-CONFIG_ROOT="${IG_REELS_ROOT:-${HOME}/.config/ig-reels-knowledge-extract}"
-DOWNLOAD_DIR="${CONFIG_ROOT}/downloads"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib/config-root.sh
+source "${SCRIPT_DIR}/lib/config-root.sh"
+DOWNLOAD_DIR="${CONFIG_ROOT}/downloads"
 FORCE=0
 JOBS=6
 

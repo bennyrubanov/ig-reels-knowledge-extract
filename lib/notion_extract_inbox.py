@@ -15,14 +15,14 @@ from pathlib import Path
 from typing import Any
 
 from extract_status import classify_url, media_id_from_url
-from local_config import load_local_env, notion_data_source_id, notion_database_id
+from local_config import config_root, load_local_env, notion_data_source_id, notion_database_id
 
 DEFAULT_DATABASE_ID = notion_database_id()
 DEFAULT_DATA_SOURCE_ID = notion_data_source_id()
 NOTION_VERSION = "2025-09-03"
 INBOX_STATUSES = frozenset({"queued", "extracting", "noted", "skip", "fail"})
 TOKEN_PATHS = (
-    Path.home() / ".config/ig-reels-knowledge-extract/notion.env",
+    config_root() / "notion.env",
     Path(__file__).resolve().parents[1] / "notion.env",
 )
 
@@ -84,7 +84,7 @@ def load_notion_token(env: dict[str, str] | None = None) -> str:
         if token:
             return token
     raise SystemExit(
-        "Set NOTION_TOKEN or write ~/.config/ig-reels-knowledge-extract/notion.env "
+        "Set NOTION_TOKEN or write notion.env next to the repo "
         "(gitignored). Cursor agents can query the inbox via Notion MCP instead. "
         "Do not copy Railway .env into git."
     )

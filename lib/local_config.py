@@ -11,6 +11,22 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 LOCAL_ENV_PATH = REPO_ROOT / "local.env"
 WANTED_PATH = REPO_ROOT / "wanted-collections.txt"
+_CONFIG_CANDIDATES = (
+    Path.home() / ".config/ig-yt-x-knowledge-extract",
+    Path.home() / ".config/ig-reels-knowledge-extract",
+    Path.home() / ".config/ig-reel",
+)
+
+
+def config_root() -> Path:
+    """Install symlink. IG_REELS_ROOT wins, then the current name, then legacy names."""
+    raw = os.environ.get("IG_REELS_ROOT", "").strip()
+    if raw:
+        return Path(raw)
+    for path in _CONFIG_CANDIDATES:
+        if path.exists():
+            return path
+    return _CONFIG_CANDIDATES[0]
 
 
 def parse_env_file(text: str) -> dict[str, str]:

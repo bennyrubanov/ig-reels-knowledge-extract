@@ -2,7 +2,9 @@
 # Remove old raw media from downloads/; keep transcripts and metadata.
 set -euo pipefail
 
-CONFIG_ROOT="${IG_REELS_ROOT:-${HOME}/.config/ig-reels-knowledge-extract}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib/config-root.sh
+source "${SCRIPT_DIR}/lib/config-root.sh"
 DOWNLOAD_DIR="${CONFIG_ROOT}/downloads"
 YOUTUBE_DIR="${DOWNLOAD_DIR}/youtube"
 TWITTER_DIR="${DOWNLOAD_DIR}/twitter"
@@ -28,7 +30,6 @@ EOF
   exit 1
 }
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 if [[ -z "${OBSIDIAN_VAULT:-}" && -f "${SCRIPT_DIR}/local.env" ]]; then
   # shellcheck disable=SC1091
   set -a

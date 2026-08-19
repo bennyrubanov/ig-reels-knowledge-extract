@@ -2,10 +2,11 @@
 # Fetch an X/Twitter status: thread text, photos, optional video + Whisper.
 set -euo pipefail
 
-CONFIG_ROOT="${IG_REELS_ROOT:-${HOME}/.config/ig-reels-knowledge-extract}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib/config-root.sh
+source "${SCRIPT_DIR}/lib/config-root.sh"
 VENV="${CONFIG_ROOT}/whisper-venv"
 COOKIES="${HOME}/.config/x-cookies.txt"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PYTHON="${VENV}/bin/python3"
 [[ -x "$PYTHON" ]] || PYTHON="python3"
 MODEL="small"

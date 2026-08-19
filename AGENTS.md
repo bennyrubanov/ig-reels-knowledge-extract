@@ -1,4 +1,4 @@
-# Agent instructions — ig-reels-knowledge-extract
+# Agent instructions — ig-yt-x-knowledge-extract
 
 Read this file first. Extraction steps: [docs/agent-workflow.md](docs/agent-workflow.md). Filing: [docs/obsidian-filing.md](docs/obsidian-filing.md). After a large queue: [docs/batch-briefing.md](docs/batch-briefing.md).
 
@@ -16,17 +16,17 @@ Obsidian is **knowledge-only** — summaries, analysis, wikilinks. All tooling s
 
 Do not extract a paste-inbox pile until they say so on a machine that has cookies and the vault.
 
-**Never run alongside local Ollama coding** — Whisper `small` ~2 GB RAM; check `ollama ps` first.
+Scripts warn if `ollama ps` shows a loaded model. Whisper also uses RAM; confirm before a long run if something else is already using the GPU/RAM.
 
 ## Quick start
 
 ```bash
-~/.config/ig-reels-knowledge-extract/transcribe-reel.sh "<REEL_URL>"
-~/.config/ig-reels-knowledge-extract/transcribe-carousel.sh "<POST_URL>"
-~/.config/ig-reels-knowledge-extract/transcribe-youtube.sh "<YOUTUBE_URL>"
-~/.config/ig-reels-knowledge-extract/transcribe-twitter.sh "<TWEET_URL>"
-~/.config/ig-reels-knowledge-extract/transcribe-batch.sh URL URL
-~/.config/ig-reels-knowledge-extract/extract-status.sh --jsonl /tmp/extract.jsonl
+~/.config/ig-yt-x-knowledge-extract/transcribe-reel.sh "<REEL_URL>"
+~/.config/ig-yt-x-knowledge-extract/transcribe-carousel.sh "<POST_URL>"
+~/.config/ig-yt-x-knowledge-extract/transcribe-youtube.sh "<YOUTUBE_URL>"
+~/.config/ig-yt-x-knowledge-extract/transcribe-twitter.sh "<TWEET_URL>"
+~/.config/ig-yt-x-knowledge-extract/transcribe-batch.sh URL URL
+~/.config/ig-yt-x-knowledge-extract/extract-status.sh --jsonl /tmp/extract.jsonl
 ```
 
 Scoreboard is disk + vault. Do not count jsonl `fail` rows.
@@ -44,8 +44,8 @@ Then `transcribe-batch` those URLs and `mark --status noted` (or `skip` / `fail`
 
 | Item | Path |
 |------|------|
-| Repo | clone or `~/Coding_Projects/ig-reels-knowledge-extract` |
-| Config symlink | `~/.config/ig-reels-knowledge-extract` → repo |
+| Repo | your clone |
+| Config symlink | `~/.config/ig-yt-x-knowledge-extract` → repo (legacy `ig-reels-knowledge-extract` and `ig-reel` still resolve) |
 | Cookies | `~/.config/ig-cookies.txt` (IG) · `~/.config/x-cookies.txt` (X, optional) |
 | Vault | `OBSIDIAN_VAULT` or `local.env` (gitignored) |
 | Raw downloads | `downloads/` under the config symlink |
@@ -81,7 +81,7 @@ When asked for a comment to post on a reel:
 ## Missed frames?
 
 ```bash
-~/.config/ig-reels-knowledge-extract/reextract-frames.sh {id} --frame-interval 1
+~/.config/ig-yt-x-knowledge-extract/reextract-frames.sh {id} --frame-interval 1
 ```
 
 ## After a batch
