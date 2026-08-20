@@ -326,6 +326,7 @@ More URLs: paste in chat, or a bookmark-HTML export of *chosen folders* into `ex
 | Image-only carousel dies before slides | `--print id` / video-first + `set -e` | Current `transcribe-carousel.sh` (URL shortcode + thumbnail-first) |
 | `{id}.txt` grows to tens of GB | `cat` combined Twitter transcript onto itself | Current `transcribe-twitter.sh`; restore `thread.txt` |
 | Empty IG media, post still live | Cookie file missing `sessionid` | Re-export with HttpOnly, or attended `--cookies-from-browser` |
+| Instagram comment threads empty | yt-dlp `--write-comments` → `i.instagram.com/api/v1/media/{pk}/comments/` returns `status: fail` (trial 2026-08-19). The working media/info payload has `comment_count` (946 / 3689) but `preview_comments` is empty and `hide_view_all_comment_entrypoint` is true. iOS `app_id` extractor-arg 400s video info. gallery-dl does not support IG comments; not installed here. Graph API is **your** professional media only. | Paste the comment or a screenshot. Open the reel in Instagram yourself. Do not add a second IG client. |
 | jsonl says `fail`, media/note exists | Append-only log; last-write is stale | `extract-status.sh --jsonl FILE` (optionally `--write-recovered`) |
 | Frames skipped | Video >120s | `ffmpeg -ss T -frames:v 1` or `reextract-frames.sh` |
 | Export caption ≠ slides | IG Saved JSON caption/owner can attach to the wrong post. The same caption blob is often reused on many IDs | Trust downloaded slides / Whisper / `{id}.description.txt`. Re-check `inventory.jsonl` vs media |

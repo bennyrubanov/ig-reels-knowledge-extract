@@ -93,19 +93,21 @@ capture_context: Inbox                             # Todoist / Notion / chat
 ---
 ```
 
-**Inbox pastes:** the operator often copies the **link plus the question they wrote when they saved it**. That comment is the analysis prompt — put it in `user_question` and **answer it in the first TL;DR bullet**. YAML alone is not enough. In the Notion inbox the prompt usually sits in **Name** immediately before `{creator} on Instagram: "…"`. A **Question** column is an optional override (`capture_context: Notion`). See [paste-inbox.md](paste-inbox.md).
+**Inbox pastes:** whatever they typed **immediately before** Instagram’s auto-title (`{creator} on Instagram: "…"`) is the **prompt** — a question, a statement, or a filing instruction (`Important distinguish the shorts from the longs`). Put the exact prefix in `user_question`. Do the work it asks (answer, split shorts vs longs, file tickers on the wealth trackers). YAML alone is not enough. A **Question** column is an optional override (`capture_context: Notion`). See [paste-inbox.md](paste-inbox.md).
 
 If `user_question` is set, the **first** TL;DR bullet is:
 
 ```markdown
-- **Your question:** <short restatement>? **<the answer>**
+- **Your prompt:** <their words.> **<what you did / the answer>**
 ```
 
-Empty / URL-only inbox titles: write `(none — URL only.)` and still say what you did with the save. Do not invent a question they did not ask.
+Empty / URL-only inbox titles: write `(none — URL only.)` and still say what you did with the save. Do not invent a prompt they did not write.
+
+They do not post Instagram comments from this workflow. Never tell them “don’t comment KEYWORD.” Skip those rows as ads and move on.
 
 **Body structure:**
 
-1. **TL;DR** — first bullet **Your question:** if `user_question` is set; then 2–4 more bullets (agents read first)
+1. **TL;DR** — first bullet **Your prompt:** if `user_question` is set; then 2–4 more bullets (agents read first)
 2. **Claims** — what the creator asserts
 3. **Evidence** — what frames/transcript/caption support or contradict (describe charts; don't paste raw transcript)
 4. **Analysis** — legitimacy, gaps, context

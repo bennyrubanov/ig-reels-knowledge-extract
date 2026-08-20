@@ -33,7 +33,7 @@ Never commit, log, echo, or paste cookie contents.
 - “Transcribe this reel/video/post”
 - Legitimacy / fact-check / chart review
 - Investment case / thesis research
-- Inbox paste: URL + the comment they wrote when they saved it — that comment is the analysis prompt (`user_question`). **First TL;DR bullet must be `Your question:` + the answer.**
+- Inbox paste: URL + whatever they typed when they saved it — question, statement, or filing instruction (`user_question`). **First TL;DR bullet must be `Your prompt:` + what you did.** Ticker prompts also go on the vault wealth trackers.
 
 Do not extract a paste-inbox pile until they say so on a machine that has cookies and the vault.
 
@@ -61,7 +61,7 @@ python3 scripts/notion-extract-inbox.py list
 python3 scripts/notion-extract-inbox.py urls
 ```
 
-Then `igx batch` those URLs and `mark --status noted` (or `skip` / `fail`). Skip comment-keyword CTAs (Comment “Sued”, KITCHEN, …) — mark `skip`, do not extract. The analysis prompt is usually the **Name** text before `on Instagram:`, not a Question column.
+Then `igx batch` those URLs and `mark --status noted` (or `skip` / `fail`). Skip comment-keyword CTA rows (Comment “Sued”, KITCHEN, …) — mark `skip`, do not extract. Do not tell the operator to comment or not comment anything; they are not posting. The prompt is the **Name** text before `on Instagram:` (question, statement, or filing instruction), not a Question column. Ticker prompts belong on the vault wealth trackers, not only in chat.
 
 ## Paths
 
@@ -90,7 +90,7 @@ Document as you go. A learning that is only in chat is not captured. Pipeline le
 
 Videos **>120s** skip frames by default; `python scripts/igx.py reextract {id}` (or `reextract-frames.sh`) if needed.
 
-This pipeline does **not** fetch Instagram comment threads (caption, frames, and transcript only). If a source is in comments, paste the text or a screenshot.
+This pipeline does **not** fetch Instagram comment threads (caption, frames, and transcript only). `yt-dlp --write-comments` exists; Instagram’s comments endpoint currently fails (see [docs/agent-workflow.md](docs/agent-workflow.md)). Graph API is comments on **your** professional posts only. If a source is in the thread, paste the text or a screenshot.
 
 ## Missed frames?
 

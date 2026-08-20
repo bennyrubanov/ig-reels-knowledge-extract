@@ -73,13 +73,19 @@ Optional ping (keep it out of this repo): poll the same queued definition, email
 when `count` first reaches N, remember you already mailed this pile, re-arm only
 after `count < N`. Do not put `ig-cookies.txt` on that host.
 
-## Name prefix is the question
+## Name prefix is the prompt
 
 `scripts/notion-extract-inbox.py queue-json` sets `user_question` from the Name
-prefix (text before `on Instagram:` minus the creator). A separate **Question**
-column is an optional override — you do not need to fill it. First TL;DR bullet
-in the vault note is still `Your question:` when that field is set. Filing:
+prefix (text before `on Instagram:` minus the creator). That prefix is not
+always a question. A statement or instruction (“Important distinguish the
+shorts from the longs”) is still the job: extract, then do what it says, and
+file any tickers on the wealth claim map / hub. A separate **Question**
+column is an optional override — you do not need to fill it. First TL;DR
+bullet is `Your prompt:` when that field is set. Filing:
 [obsidian-filing.md](obsidian-filing.md).
+
+Do not tell the operator to comment or not comment a keyword. They are not
+posting. Mark those rows `skip`.
 
 ## Unused Notion columns
 

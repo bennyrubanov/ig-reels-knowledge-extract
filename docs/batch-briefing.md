@@ -44,7 +44,7 @@ Write the same fact as a person would say it:
 - **What that number actually is** (vendor study, one-session HR, comment funnel)
 - **What to do** (ignore unless you already wanted the tool; official site not DM)
 
-Source notes with a saved comment must open the TL;DR with **Your question:** + the answer (not YAML only).
+Source notes with a saved Name prefix must open the TL;DR with **Your prompt:** + what you did (not YAML only). The prefix is a prompt, not always a question.
 
 ---
 
