@@ -32,6 +32,7 @@ Shortcodes start with `D`. That is why extractions are nested — otherwise they
 | `wealth/` | Investing (no separate `investing/` folder). Books, ticker map, `investments/`, `companies/` |
 | `building-an-app/` | Shipping / hosting takeaways |
 | `marketing-an-app/` | Marketing notes from Saved or other sources |
+| `fitness-tips/` | IG Saved Fitness tips. Principles first, then named plans |
 | `privacy/` `real-estate/` `travel/` `decisions/` | That domain’s `_index.md` |
 | `people/` `ai/` | Person hubs / papers |
 | `instagram/extractions/{id}-{slug}.md` | One reel / carousel (receipt) |
@@ -135,6 +136,7 @@ They do not post Instagram comments from this workflow. Never tell them “don�
 | Investment-relevant source | `wealth/investments/{id}-{slug}.md` (see below) |
 | IG Saved “building an app” / “marketing an app” | Receipt in `instagram/extractions/`; takeaways on `building-an-app/_index.md` / `marketing-an-app/_index.md` |
 | IG Saved “Music producing/DJ” | Receipt in `instagram/extractions/`; takeaways on `music-producing/_index.md`. Remix/sample tracks need title/artist or `track_id: unknown`, plus `vibe:` tags (tiktok / chill / orchestral / …) |
+| IG Saved “Fitness tips” | Receipt in `instagram/extractions/`; takeaways on `fitness-tips/_index.md`. **Principles first**, then named plans. Confused / CTA → BACKLOG later-review pile D. Cheap surviving habits also get one line on `health/practical-recommendations.md` |
 | Unsorted | `_inbox/` → classify later |
 
 ---
