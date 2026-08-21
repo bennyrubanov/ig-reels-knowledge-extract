@@ -43,6 +43,12 @@ class ExtractQueueCmdTests(unittest.TestCase):
         self.assertEqual(cmd[2], "reel")
         self.assertFalse(any(part.endswith(".sh") for part in cmd))
 
+    def test_tv_kind_uses_reel_command(self) -> None:
+        from extract_queue import igx_cmd, normalize_kind
+
+        self.assertEqual(normalize_kind("tv"), "reel")
+        self.assertEqual(igx_cmd("tv")[2], "reel")
+
 
 if __name__ == "__main__":
     unittest.main()

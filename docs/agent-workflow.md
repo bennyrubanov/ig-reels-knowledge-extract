@@ -292,7 +292,7 @@ Full details, cleanup commands, and **source link retention**: **[storage-retent
 
 Whisper: `{id}.whisper.log` + live segment progress on stderr.
 
-Parallel batch: `transcribe-batch.sh URL…` (routes `/reel/` `/p/` YouTube X) or `extract-queue.py --queue queue.json`. Writes `--jsonl` (default `/tmp/extract.jsonl`). **Scoreboard:** `extract-status.sh --jsonl FILE` — disk + vault, not raw `fail` counts. A job that exits 234 (mjpeg) or 1 (old image-only carousel) but left slides/frames is `ok_partial` / `recovered`, not a missing note.
+Parallel batch: `transcribe-batch.sh URL…` (routes `/reel/` `/p/` YouTube X) or `extract-queue.py --queue queue.json`. Writes `--jsonl` (default `/tmp/extract.jsonl`). **Scoreboard:** `extract-status.sh --jsonl FILE` — disk + vault, not raw `fail` counts. A job that exits 234 (mjpeg) or 1 (old image-only carousel) but left slides/frames is `ok_partial` / `recovered`, not a missing note. Queue `kind: tv` (`/tv/` IGTV) is treated as a reel — do not let it `ValueError` the worker (Fitness 2026-08-20 died at 242/243 on that).
 
 **Paste inbox (optional, not the Saved ZIP):** public repo = extractor; the ping is a separate habit — [paste-inbox.md](paste-inbox.md). Nothing downloads until the operator says to run the queue on a machine with cookies. Then:
 

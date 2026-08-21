@@ -30,9 +30,16 @@ from extract_status import (
 from local_config import REPO_ROOT, default_jsonl_path
 
 KINDS = ("reel", "carousel", "youtube", "twitter")
+# IGTV /tv/ is the same download path as a reel. Saved-export queues still emit kind=tv.
+KIND_ALIASES = {"tv": "reel"}
+
+
+def normalize_kind(kind: str) -> str:
+    return KIND_ALIASES.get(kind or "", kind)
 
 
 def igx_cmd(kind: str) -> list[str]:
+    kind = normalize_kind(kind)
     if kind not in KINDS:
         raise ValueError(kind)
     return [sys.executable, str(REPO_ROOT / "scripts" / "igx.py"), kind]
@@ -58,16 +65,17 @@ def run_one(
     downloads: Path,
     timeout: int,
 ) -> dict:
+    kind = normalize_kind(kind)
     base = {"kind": kind, "media_id": mid, "url": url, **extra}
     if already_done(kind, mid, downloads):
         row = {**base, "status": "skipped_exists", "got": artifacts(kind, mid, downloads)}
         log_row(jsonl, row)
         return row
-    cmd = igx_cmd(kind) + [url]
     t0 = time.time()
     last_err = ""
     exit_code = 1
     try:
+        cmd = igx_cmd(kind) + [url]
         ok = False
         for attempt in range(1, 3):
             proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
@@ -120,7 +128,7 @@ def jobs_from_queue(path: Path) -> list[dict]:
         }
         for media in item.get("media") or []:
             mid = media.get("media_id") or media_id_from_url(media.get("url") or "")
-            kind = media.get("kind") or classify_url(media.get("url") or "")
+            kind = normalize_kind(media.get("kind") or classify_url(media.get("url") or ""))
             key = f"{kind}:{mid}"
             if not mid or key in seen:
                 continue
