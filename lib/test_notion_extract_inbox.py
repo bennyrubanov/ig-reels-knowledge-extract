@@ -43,6 +43,13 @@ class CtaTests(unittest.TestCase):
         self.assertFalse(looks_like_comment_keyword_cta("Paywall last — 75% install"))
         self.assertFalse(looks_like_comment_keyword_cta(""))
 
+    def test_named_github_is_not_skip_cta(self) -> None:
+        title = (
+            'Ajay Yadav on Instagram: "A developer dropped ScrapeGraph-AI on GitHub… '
+            'Comment “SCRAPE” and I’ll send you the GitHub link"'
+        )
+        self.assertFalse(looks_like_comment_keyword_cta(title))
+
 
 class QueuedTests(unittest.TestCase):
     def test_empty_status_with_url_is_queued(self) -> None:
@@ -138,7 +145,7 @@ class RowTests(unittest.TestCase):
         self.assertEqual(row["media_id"], "Db9Br3XBTPj")
         self.assertEqual(row["page_id"], "3c03c77f-93de-81c0-bc1f-c127906616ee")
         self.assertTrue(row["skip_cta"])
-        self.assertFalse(row["actionable"])
+        self.assertTrue(row["actionable"])
         self.assertEqual(row["question"], "")
 
     def test_row_derives_question_from_name(self) -> None:
@@ -165,7 +172,7 @@ class RowTests(unittest.TestCase):
         self.assertEqual(row["question"], "Should I buy?")
         self.assertTrue(row["actionable"])
 
-    def test_urls_omit_cta_by_default(self) -> None:
+    def test_urls_include_cta(self) -> None:
         rows = [
             {
                 "url": "https://www.instagram.com/reel/KeepMe/",
@@ -188,10 +195,13 @@ class RowTests(unittest.TestCase):
         ]
         self.assertEqual(
             extract_urls(rows, include_skip_cta=False),
-            ["https://www.instagram.com/reel/KeepMe/"],
+            [
+                "https://www.instagram.com/reel/KeepMe/",
+                "https://www.instagram.com/reel/Db9Br3XBTPj/",
+            ],
         )
         payload = queue_json_payload(rows, include_skip_cta=False)
-        self.assertEqual(len(payload["items"]), 1)
+        self.assertEqual(len(payload["items"]), 2)
         self.assertEqual(payload["items"][0]["user_question"], "why this?")
         self.assertEqual(payload["items"][0]["capture_context"], "Notion")
 

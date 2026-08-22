@@ -58,7 +58,8 @@ _TRAILING_CREATOR_NAME = re.compile(
     re.VERBOSE,
 )
 
-# Comment “Sued” / Comment KITCHEN — a cron would finish these; a batch skips.
+# Comment “Sued” / Comment KITCHEN — flag only. Never omit from extract.
+# 2026-08-21: “comment this word for the link” hid ScrapeGraph-AI and recipes.
 _COMMENT_KEYWORD = re.compile(
     r"""
     comment\s+[“"'][^”"']+[”"']
@@ -68,10 +69,18 @@ _COMMENT_KEYWORD = re.compile(
     """,
     re.IGNORECASE | re.VERBOSE,
 )
+_NAMED_KEEP = re.compile(
+    r"github\.com/|on github|dropped \S+ on github",
+    re.IGNORECASE,
+)
 
 
 def looks_like_comment_keyword_cta(text: str) -> bool:
-    return bool(text and _COMMENT_KEYWORD.search(text))
+    if not text or not _COMMENT_KEYWORD.search(text):
+        return False
+    if _NAMED_KEEP.search(text):
+        return False
+    return True
 
 
 def looks_like_creator_only(prefix: str) -> bool:
@@ -233,7 +242,7 @@ def row_from_page(page: dict[str, Any], url_prop: str = "URL") -> dict[str, Any]
         "topics": topics,
         "skip_cta": skip_cta,
         "kind": classify_url(url) if url else "unknown",
-        "actionable": is_actionable_queued(status, url) and not skip_cta,
+        "actionable": is_actionable_queued(status, url),
     }
 
 
@@ -399,8 +408,6 @@ def extract_urls(rows: list[dict[str, Any]], *, include_skip_cta: bool) -> list[
         url = (row.get("url") or "").strip()
         if not url or url in seen:
             continue
-        if row.get("skip_cta") and not include_skip_cta:
-            continue
         if not is_actionable_queued(str(row.get("status") or ""), url):
             continue
         seen.add(url)
@@ -413,8 +420,6 @@ def queue_json_payload(rows: list[dict[str, Any]], *, include_skip_cta: bool) ->
     for row in rows:
         url = (row.get("url") or "").strip()
         if not url:
-            continue
-        if row.get("skip_cta") and not include_skip_cta:
             continue
         if not is_actionable_queued(str(row.get("status") or ""), url):
             continue

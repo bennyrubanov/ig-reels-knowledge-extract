@@ -15,6 +15,8 @@ Cloud / Codespace / a VM without the operator’s Chrome **cannot** download Ins
 
 Netscape (Mozilla) format. First line `# Netscape HTTP Cookie File` or `# HTTP Cookie File`. On Unix, `chmod 600`. Instagram needs the HttpOnly **`sessionid`** row. An export that skips HttpOnly will 403 / empty-media while the post is still live.
 
+`python3 scripts/check-setup.py` only checks that the **row exists**. It does **not** prove Instagram will serve media. A stale `sessionid` from a logged-out Chrome session is still a green check. Log into [instagram.com](https://www.instagram.com/) in the browser first, then re-export, then probe one reel (see below).
+
 The scripts pass that path to `yt-dlp --cookies`. They do **not** call `--cookies-from-browser` unless a human does that themselves.
 
 ## Write the Instagram jar (pick one)
@@ -42,24 +44,38 @@ python3 scripts/check-setup.py
 
 This writes **every site’s** cookies from that Chrome profile. Prefer A. If you use B, filter to Instagram before keeping the file, and delete the full dump.
 
-On macOS the Keychain prompt must be **Allow**, not Always Allow. A human has to click it. Close extra Chrome instances if yt-dlp says the cookie DB is locked.
+On macOS the Keychain prompt must be **Allow**, not Always Allow. A human has to click it. **One dump.** Each `--cookies-from-browser` can prompt Keychain **twice** in one command (`--cookies` + browser extract). Retrying Default, then Profile 1, then a live probe is how you get 6–10 dialogs. Close extra Chrome instances if yt-dlp says the cookie DB is locked.
+
+`--cookies FILE` is also a **write-back**. If the file is empty, yt-dlp errors (`does not look like a Netscape format cookies file`). Seed a header first. After a failed Instagram fetch, write-back can **strip `sessionid`** from the live jar — probe against a **copy**, never the live path.
+
+`chrome:Default` is Chrome’s first on-disk profile (`…/Google/Chrome/Default`). A second Chrome person is `Profile 1`. Export from the profile that is actually logged into Instagram.
 
 ```bash
 mkdir -p ~/.config /tmp
-# Full-profile dump (secret). Do not commit or paste.
+# Seed a Netscape header so --cookies will accept the file.
+printf '%s\n' '# Netscape HTTP Cookie File' > /tmp/all-cookies.txt
+chmod 600 /tmp/all-cookies.txt
+# Full-profile dump (secret). Do not commit or paste. One run.
 yt-dlp --cookies-from-browser chrome:Default \
   --cookies /tmp/all-cookies.txt \
-  --skip-download "https://www.instagram.com/"
+  --skip-download --simulate "https://example.com/" || true
 # Keep Instagram rows only:
 awk 'BEGIN{print "# Netscape HTTP Cookie File"}
      $0 ~ /^# Netscape/ || $0 ~ /^# HTTP Cookie/ {next}
-     $1 ~ /instagram\.com/ {print}' /tmp/all-cookies.txt > ~/.config/ig-cookies.txt
+     $1 ~ /instagram\.com/ || $1 ~ /#HttpOnly_.*instagram\.com/ {print}' \
+     /tmp/all-cookies.txt > ~/.config/ig-cookies.txt
 chmod 600 ~/.config/ig-cookies.txt
 rm -f /tmp/all-cookies.txt
 python3 scripts/check-setup.py
+# Prove media, without clobbering the live jar:
+cp ~/.config/ig-cookies.txt /tmp/ig-cookies-probe.txt
+chmod 600 /tmp/ig-cookies-probe.txt
+yt-dlp --cookies /tmp/ig-cookies-probe.txt --skip-download \
+  --print "%(id)s | %(duration)s" "https://www.instagram.com/reel/REEL_ID/"
+rm -f /tmp/ig-cookies-probe.txt
 ```
 
-Use `chrome:"Profile 1"` (or another named profile) if Instagram is not in Default.
+Use `chrome:"Profile 1"` (or another named profile) if Instagram is not in Default. Do not dump a second profile “just to check” — that is more Keychain prompts. If the probe still returns empty media, the browser is logged out or that post is gone. Do not dump again until the human confirms a reel plays while logged in.
 
 **One-off download** without writing a jar (human at Keychain):
 

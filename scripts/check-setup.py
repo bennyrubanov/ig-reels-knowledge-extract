@@ -110,7 +110,7 @@ def check_cookies() -> bool:
     else:
         ok(f"{COOKIES} present")
     if has_sessionid(COOKIES):
-        ok("ig-cookies.txt has a sessionid row (value not printed)")
+        ok("ig-cookies.txt has a sessionid row (value not printed; does not prove Instagram will serve media)")
         return True
     bad("ig-cookies.txt has no sessionid row — re-export HttpOnly; docs/auth.md")
     return False

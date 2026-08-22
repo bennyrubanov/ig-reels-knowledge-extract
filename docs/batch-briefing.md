@@ -81,7 +81,7 @@ Every hub and every source on the canvas must be a `noteUrl` link. Put the long 
 
 ## Traps that keep biting
 
-- Empty IG media, post still live → cookie jar missing HttpOnly `sessionid`.
+- Empty IG media, post still live → usually missing/stale HttpOnly `sessionid`, or Chrome was logged out. `check-setup.py` green is not enough. One attended dump; probe a copy of the jar ([auth.md](auth.md)). If siblings download, that ID is gone.
 - Image-only carousels → do not `yt-dlp --print id` first. Parse the shortcode from the URL.
 - Twitter disk bomb → never `cat` the combined `{id}.txt` onto itself.
 - jsonl is a log, not the scoreboard → `extract-status.sh --jsonl FILE`.

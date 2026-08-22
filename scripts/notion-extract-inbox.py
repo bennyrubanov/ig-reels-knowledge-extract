@@ -12,8 +12,8 @@ Does not download, Whisper, or write the vault. After you have a pile:
 The analysis prompt is usually the Name text before `on Instagram:`, not the
 Question column. See docs/paste-inbox.md.
 
-Comment-keyword CTAs (Comment “Sued”) are listed as skip-cta and omitted from
-`urls` unless you pass --include-skip-cta. Mark those skip — do not extract.
+Comment-keyword lines (Comment “Sued”) are listed as skip-cta for awareness
+only. Still extract. Do not mark skip for a keyword funnel.
 """
 from __future__ import annotations
 

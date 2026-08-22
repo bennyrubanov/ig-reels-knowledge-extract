@@ -11,12 +11,12 @@ Agents write **knowledge notes** here. Tooling, scripts, and extraction workflow
 | Yes | No |
 |-----|-----|
 | TL;DR, claims, analysis, evidence summaries | Full Whisper transcripts |
-| Descriptions of what charts/frames showed | Raw frame JPGs |
+| **Keep frames** — 1–4 stills that carry the fact (map, menu, hotel name, itinerary, chart, visa table) | The full 90-frame dump; talking-head stills |
 | Wikilinks, tags, open questions | Script paths, Whisper settings, yt-dlp steps |
 | Folder structure & categorization decisions | Agent runbooks (→ git repo) |
 | Synthesized trading/options learnings | Cookie/setup instructions |
 
-Raw media stays in `~/.config/ig-yt-x-knowledge-extract/downloads/`.
+Copy keep frames into `instagram/extractions/_media/{id}/` and embed them on the receipt (`![[instagram/extractions/_media/{id}/{slug}.jpg]]`). Name the file after what it shows (`hoi-an-blue-eye-tailor.jpg`, not `frame_12.jpg`). Raw mp4 + unused frames stay in `downloads/` and can still be pruned.
 
 ---
 
@@ -137,6 +137,8 @@ They do not post Instagram comments from this workflow. Never tell them “don�
 | IG Saved “building an app” / “marketing an app” | Receipt in `instagram/extractions/`; takeaways on `building-an-app/_index.md` / `marketing-an-app/_index.md` |
 | IG Saved “Music producing/DJ” | Receipt in `instagram/extractions/`; takeaways on `music-producing/_index.md`. Remix/sample tracks need title/artist or `track_id: unknown`, plus `vibe:` tags (tiktok / chill / orchestral / …) |
 | IG Saved “Fitness tips” | Receipt in `instagram/extractions/`; takeaways on `fitness-tips/_index.md`. **Principles first**, then named plans. Confused / CTA → BACKLOG later-review pile D. Cheap surviving habits also get one line on `health/practical-recommendations.md` |
+| IG Saved “Travel destinations/things to do” | Receipt in `instagram/extractions/`; takeaways on `travel/_index.md`. File **places**, **things to do on trips you already take**, **mechanics**, **points**, **food/hike/nightlife/Kami**, **someday**. Pretty-only → one line or skip. Ask why / when / with whom when there is a real place. Copy keep frames (map / sign / menu / itinerary) into `instagram/extractions/_media/{id}/`. |
+| IG Saved “Good info” | Receipt in `instagram/extractions/`; file to the matching hub (`health/`, `wealth/`, `travel/`, …). Leftovers on `good-info/_index.md`. Folder is a weak signal. Keep frames when the still is the fact. |
 | Unsorted | `_inbox/` → classify later |
 
 ---

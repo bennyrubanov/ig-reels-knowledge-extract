@@ -33,7 +33,7 @@ YouTube long-form audio dominates when Whisper runs (e.g. 51 min talk ≈ 70 MB 
 ## Recommended 3-step policy
 
 1. **Extract densely** — default **1s** frames; use `auto` or `--frame-interval 2` only for clearly static reels. When unsure, bias more frames — prune raw media later.
-2. **Write Obsidian note** — claims, frame/chart descriptions, analysis. This is the **durable artifact**; raw media is disposable once the note exists.
+2. **Write Obsidian note** — claims, analysis, and **1–4 keep frames** copied into `instagram/extractions/_media/{id}/` (map, menu, hotel name, itinerary, chart). Those vault stills are the durable image; the other 90 JPGs in `downloads/` can go.
 3. **Prune raw media monthly** — preview first, then run cleanup with `--keep-noted`.
 
 Agents should complete steps 1–2 before cleanup. Never prune media for a reel you haven't noted yet if you might need frames for chart review.

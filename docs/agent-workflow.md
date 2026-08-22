@@ -151,6 +151,15 @@ GEX test reel (Da3iJOOIEkw): 5 scene cuts / 89s → **1s** with default or auto.
 
 **Policy:** When unsure, bias **more frames** (default 1s). Disk cost is cheap; `cleanup-downloads.sh` prunes raw media after Obsidian notes exist. Re-run `reextract-frames.sh {id} --frame-interval 1` if analysis still finds gaps.
 
+**Sub-second ticker flash:** a 1 s grid can miss the name. `DcRtJdPSchS` (Andy Luo) said “the stock … is this company” and showed **AAOI** for ~0.3 s after “POTENTIAL IS THIS.” Whisper and 19 one-second frames both missed it. If speech points at a name and the 1 s grid has no ticker, dump the last ~6 s at 10 fps (`mkdir /tmp/{id}-dense` first; do not wipe the 1 s set):
+
+```bash
+ffmpeg -y -ss START -i ~/.config/ig-yt-x-knowledge-extract/downloads/{id}.mp4 \
+  -vf fps=10 /tmp/{id}-dense/f%03d.jpg
+```
+
+`START` = duration minus 6 (ffprobe). Also check the end of the 1 s grid — the name is often the last card.
+
 ### Agent read strategy
 
 1. Read transcript + caption first
@@ -185,7 +194,7 @@ This **replaces** `{id}/frames/*.jpg`. Transcript and video unchanged.
 ~/.config/ig-yt-x-knowledge-extract/transcribe-reel.sh 'REEL_URL' --frame-interval 1
 ```
 
-Videos **>120s**: frames skipped by default; use manual `ffmpeg -ss` seeks on `{id}.mp4`.
+Videos **>120s**: frames skipped by default; use manual `ffmpeg -ss` seeks on `{id}.mp4`. For Travel / Good info, dump a handful of stills yourself if the place or list is on screen — then copy **keep frames** into `instagram/extractions/_media/{id}/` (1–4 stills that carry the fact, not the full grid).
 
 ---
 
@@ -298,12 +307,12 @@ Parallel batch: `transcribe-batch.sh URL…` (routes `/reel/` `/p/` YouTube X) o
 
 ```bash
 python3 scripts/notion-extract-inbox.py list
-python3 scripts/notion-extract-inbox.py urls   # omits comment-keyword CTAs
+python3 scripts/notion-extract-inbox.py urls   # includes comment-keyword rows; still extract those
 # or: python3 scripts/notion-extract-inbox.py queue-json --out /tmp/notion-queue.json
 #     python3 extract-queue.py --queue /tmp/notion-queue.json
 ```
 
-File per [obsidian-filing.md](obsidian-filing.md). Mark the row (`noted` / `skip` / `fail`) and set `Vault path`. `user_question` is the **Name** prefix before `on Instagram:` (minus the creator). A Notion **Question** column is an optional override — usually empty. Empty **Status** is queued — do not only SQL `Status = queued`. Look up `page_id` by URL if `update_page` 404s (IDs in a dump can swap `3c03`/`3c13`). Comment-keyword CTAs (Comment “Sued”) — mark `skip`, do not extract. yt-dlp often returns **one slide** for a carousel; file that slide and say so.
+File per [obsidian-filing.md](obsidian-filing.md). Mark the row (`noted` / `skip` / `fail`) and set `Vault path`. `user_question` is the **Name** prefix before `on Instagram:` (minus the creator). A Notion **Question** column is an optional override — usually empty. Empty **Status** is queued — do not only SQL `Status = queued`. Look up `page_id` by URL if `update_page` 404s (IDs in a dump can swap `3c03`/`3c13`). Comment-keyword lines (Comment “Sued”) — **extract anyway**. Do not mark `skip`. The keyword is a DM trick; the keep is on the reel (ScrapeGraph-AI `DX9fGa4SgX_` was the miss that changed this). yt-dlp often returns **one slide** for a carousel; file that slide and say so.
 
 More URLs: paste in chat, or a bookmark-HTML export of *chosen folders* into `exports/` (gitignored). Agents should not log into Google. Live handoffs: `BACKLOG.local.md` if present.
 
@@ -315,7 +324,7 @@ More URLs: paste in chat, or a bookmark-HTML export of *chosen folders* into `ex
 - Re-export cookies on yt-dlp 403/auth errors
 - Downloads may contain PII — don't upload externally without asking
 
-**`sessionid`:** a Netscape export that skips HttpOnly cookies will 403 / empty-media even when the post is live. Chrome usually has `sessionid` as HttpOnly. `yt-dlp --cookies-from-browser chrome:Default` can unlock it via Keychain — do it attended. Prefer an Instagram-only jar. Do not commit, echo, or paste cookie files.
+**`sessionid`:** a Netscape export that skips HttpOnly cookies will 403 / empty-media even when the post is live. Chrome usually has `sessionid` as HttpOnly. `check-setup.py` green (row present) is **not** a live session — Chrome can be logged out and the row still exists. Human logs into instagram.com first. Then **one** attended `--cookies-from-browser` (Keychain **Allow**, 1–2 prompts per dump). Prefer an Instagram-only jar. Probe media with a **copy** of the jar — `yt-dlp --cookies FILE` writes back and can strip `sessionid` after empty-media. Do not commit, echo, or paste cookie files. Recipe: [auth.md](auth.md).
 
 ---
 
@@ -325,7 +334,7 @@ More URLs: paste in chat, or a bookmark-HTML export of *chosen folders* into `ex
 |---------|--------|------------|
 | Image-only carousel dies before slides | `--print id` / video-first + `set -e` | Current `transcribe-carousel.sh` (URL shortcode + thumbnail-first) |
 | `{id}.txt` grows to tens of GB | `cat` combined Twitter transcript onto itself | Current `transcribe-twitter.sh`; restore `thread.txt` |
-| Empty IG media, post still live | Cookie file missing `sessionid` | Re-export with HttpOnly, or attended `--cookies-from-browser` |
+| Empty IG media, post still live | Missing HttpOnly `sessionid`, **or** Chrome logged out (stale row; check-setup still green), **or** the post is gone | Log into Instagram in the browser. One attended dump ([auth.md](auth.md) B). Probe a *copy* of the jar. If a sibling post downloads, treat this ID as gone. Do not multi-dump Keychain. |
 | Instagram comment threads empty | yt-dlp `--write-comments` → `i.instagram.com/api/v1/media/{pk}/comments/` returns `status: fail` (trial 2026-08-19). The working media/info payload has `comment_count` (946 / 3689) but `preview_comments` is empty and `hide_view_all_comment_entrypoint` is true. iOS `app_id` extractor-arg 400s video info. gallery-dl does not support IG comments; not installed here. Graph API is **your** professional media only. | Paste the comment or a screenshot. Open the reel in Instagram yourself. Do not add a second IG client. |
 | jsonl says `fail`, media/note exists | Append-only log; last-write is stale | `extract-status.sh --jsonl FILE` (optionally `--write-recovered`) |
 | Frames skipped | Video >120s | `ffmpeg -ss T -frames:v 1` or `reextract-frames.sh` |
@@ -335,12 +344,14 @@ More URLs: paste in chat, or a bookmark-HTML export of *chosen folders* into `ex
 
 ## Changelog
 
+- **2026-08-22** — Empty-media with a green `check-setup.py` means Chrome was logged out (or the post is gone), not “no sessionid row.” `yt-dlp --cookies FILE` write-back can strip `sessionid` after a failed fetch — probe a copy. One `--cookies-from-browser` can prompt Keychain twice; do not retry profiles. Seed a Netscape header before using `--cookies` as a dump target. [auth.md](auth.md).
 - **2026-08-19** — Paste inbox is documented as optional and out of this repo: [paste-inbox.md](paste-inbox.md). `user_question` is parsed from the Name prefix before `on Instagram:`. Notion **Question** / **Topics** stay in the schema as unused overlays; do not fill them on paste. Public docs do not include one-off “draft a comment to post” voice. Instagram comment threads are not fetched.
 - **2026-08-19** — Extract CLI is Python (`python scripts/igx.py …`) so Windows and Mac share one implementation. `.sh` files are thin Unix wrappers. No WSL required. Cookie path is still `~/.config/ig-cookies.txt`.
 - **2026-08-19** — Auth is documented for clones: [auth.md](auth.md). No Instagram OAuth. `scripts/check-setup.py` verifies the jar without printing values. `CLAUDE.md` / `GEMINI.md` / `.cursor/rules` point at `AGENTS.md`.
 - **2026-08-19** — Renamed public GitHub repo to `ig-yt-x-knowledge-extract`. Config symlink is `~/.config/ig-yt-x-knowledge-extract`; `ig-reels-knowledge-extract` and `ig-reel` still resolve. Local clone folder can match that name; scripts use the symlink, not the directory name.
 - **2026-08-19** — Public origin is pipeline-only. Saved inventories and machine notes stay gitignored (`AGENTS.local.md`, `local.env`, `exports/`). Vault/Notion IDs load from `local.env`.
 - **2026-08-18 (evening)** — Optional inbox email: one ping when queued first hits the configured threshold, then quiet until drained.
+- **2026-08-21** — Travel extract died silently at 41/123 (process gone, jsonl stopped). Resume with a remain-only queue; append the same jsonl. Keep frames belong in the vault (`instagram/extractions/_media/{id}/`), not only a sentence about the JPG. Videos >120s still skip frames — for place lists, pull a handful of stills with `ffmpeg -ss` yourself.
 - **2026-08-18 (evening)** — Remix/sample folders: title/artist from frames or speech, else `track_id: unknown` and continue. Add `vibe:` tags. No Shazam/`songrec`. See `AGENTS.md`.
 - **2026-08-18 (evening)** — Parked handoffs live in `BACKLOG.local.md` (gitignored). Committed [BACKLOG.md](BACKLOG.md) is the pattern only.
 - **2026-08-18 (evening)** — Optional Notion paste-inbox: Status / Question / Topics / Media ID / Vault path. Local poll `scripts/notion-extract-inbox.py`. Inbox IDs stay in `local.env`. No cookies on a remote poller. Saved ZIP dumps stay dated and local.

@@ -45,8 +45,9 @@ python3 scripts/notion-extract-inbox.py mark --media-id SHORTCODE --status noted
     --vault-path instagram/extractions/SHORTCODE-slug.md
 ```
 
-Mark comment-keyword CTAs (`Comment “Sued”`, …) `skip` — do not extract, do not
-comment the keyword. Empty **Status** + URL still counts as queued.
+Comment-keyword lines (`Comment “Sued”`, …) are **not** a reason to skip.
+Extract the reel. Ignore the keyword. Empty **Status** + URL still counts as
+queued.
 
 IDs for the CLI stay in gitignored `local.env` (`NOTION_DATABASE_ID`,
 `NOTION_DATA_SOURCE_ID`). Token: `NOTION_TOKEN` or `notion.env`.
